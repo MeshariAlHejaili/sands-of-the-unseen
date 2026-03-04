@@ -304,9 +304,11 @@ Spawn → Chase → Attack → Dead
 - Health bar
 - Stamina bar
 - Timer display
-- Upgrade selection UI
+- Upgrade Selection UI
 - Flash feedback when taking damage
 - Clear combat readability
+- Money bar
+- Low HP feedback
 
 ---
 
