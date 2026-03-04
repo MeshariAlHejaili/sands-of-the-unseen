@@ -198,9 +198,10 @@ This benchmark defines our **aiming system, gun feel, lighting effect, and audio
 - Health bar
 - Stamina bar
 - Timer
-- Money counter
+- Money counter bar
 - Upgrade selection panel
 - Game Over / Victory screen
+- Menu Screen
 
 ### Visual & Audio
 - Muzzle flash
@@ -301,13 +302,14 @@ Spawn → Chase → Attack → Dead
 ---
 
 ## UI/UX Feedback
-- Health bar
-- Stamina bar
-- Timer display
-- Upgrade Selection UI
+- Health bar feedback
+- Stamina bar feedback
+- Timer display feedback
+- Upgrade Selection UI display when money bar is filled
 - Flash feedback when taking damage
 - Clear combat readability
-- Money bar
+- Money bar feedback
+- Money bar reset after choosing a passive
 - Low HP feedback
 
 ---
