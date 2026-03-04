@@ -64,6 +64,23 @@ This loop continues until:
 | **Meta progression** | Yes | None |
 | **Boss** | Yes | None |
 
+**Target Reference:** *Soulstone Survivors* – https://youtu.be/VNCzWloz2C8?si=P84rhtZ5mUs9U0-h
+
+**We are replicating:**
+* **Environment:** Top-down arid desert arena (Scorching Valley biome).
+* **Palette:** Warm, saturated earth tones (red/orange sand) contrasting with vibrant magic VFX.
+* **Layout:** Open flat terrain bordered by rocky cliffs and organic obstacles.
+* **Atmosphere:** Bright daylight with sharp shadows and glowing crystal accents.
+
+**We are intentionally simplifying:**
+
+| System | Reference | Our Version |
+| :--- | :--- | :--- |
+| **Map Size** | Infinite/Large Maps | Small contained Desert Arena |
+| **Biome Variety** | Multiple Biomes | 1 Biome (Arid Canyon) |
+| **Detail Level** | High fidelity assets | Stylized low-poly assets |
+| **Lighting** | Dynamic day/night | Baked bright daylight |
+
 *This keeps scope realistic for one semester vertical slice.*
 
 ---
