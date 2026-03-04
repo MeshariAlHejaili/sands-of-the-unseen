@@ -307,7 +307,6 @@ Spawn → Chase → Attack → Dead
 - Timer display feedback
 - Upgrade Selection UI display when money bar is filled
 - Flash feedback when taking damage
-- Clear combat readability
 - Money bar feedback
 - Money bar reset after choosing a passive
 - Low HP feedback
