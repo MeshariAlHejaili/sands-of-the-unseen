@@ -59,10 +59,10 @@ Kill → Collect Coins → Upgrade → Survive Stronger Waves → Repeat
 ---
 
 # Benchmark 1 – The Horde Wants You Dead  
-**Scene Reference:**  
-https://youtu.be/t2MoeUD624E?si=GfAXBovjDSJpeEqU&t=72  
+**Scene Reference: (1:12-1:31)**  
+https://youtu.be/t2MoeUD624E?si=GfAXBovjDSJpeEqU&t=72  until 1:31 
 
-This benchmark defines our **core survival structure and wave system**.
+This benchmark defines our **core survival structure and wave system i.e. Our game mechanics**.
 
 ## What We Are Taking
 
@@ -153,21 +153,21 @@ This benchmark defines our **aiming system, gun feel, lighting effect, and audio
 
 ---
 
-# Benchmark 3- Map & Visuals
+# Benchmark 3 - Map & Visuals
 **Target Reference:** *Soulstone Survivors* – https://youtu.be/VNCzWloz2C8?si=P84rhtZ5mUs9U0-h
 
 **We are replicating:**
-* **Environment:** Top-down arid desert arena (Scorching Valley biome).
-* **Palette:** Warm, saturated earth tones (red/orange sand) contrasting with vibrant magic VFX.
-* **Layout:** Open flat terrain bordered by rocky cliffs and organic obstacles.
-* **Atmosphere:** Bright daylight with sharp shadows and glowing crystal accents.
+* **Environment:** Top-down desert arena.
+* **Palette:** Warm, saturated earth tones (red/orange sand).
+* **Layout:** Open flat terrain bordered by rocky cliffs.
+* **Atmosphere:** Bright daylight with sharp shadows.
 
 **We are intentionally simplifying:**
 
 | System | Reference | Our Version |
 | :--- | :--- | :--- |
 | **Map Size** | Infinite/Large Maps | Small contained Desert Arena |
-| **Biome Variety** | Multiple Biomes | 1 Biome (Arid Canyon) |
+| **Biome Variety** | Multiple Biomes | 1 Desert biome |
 | **Detail Level** | High fidelity assets | Stylized low-poly assets |
 | **Lighting** | Dynamic day/night | Baked bright daylight |
 
