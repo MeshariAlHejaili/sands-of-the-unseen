@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 6287560946001389407}
   - component: {fileID: 4416741564652899119}
   - component: {fileID: 141208475854455266}
+  - component: {fileID: 693845923842759231}
   m_Layer: 0
   m_Name: EnemyBox
   m_TagString: Untagged
@@ -133,3 +134,18 @@ MonoBehaviour:
   currencyOrbPrefab: {fileID: 6331482871309736253, guid: fb366bb342b35c941813e36e5f55ca70, type: 3}
   currencyValue: 1
   dropOffset: {x: 0, y: 0.5, z: 0}
+--- !u!114 &693845923842759231
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8959449158328094668}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0d0b4f4d6cc14ec6b8fd04e1887daa72, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::StayInsidePlane
+  groundObjectName: Ground
+  targetCollider: {fileID: 4416741564652899119}
+  padding: 0.05
