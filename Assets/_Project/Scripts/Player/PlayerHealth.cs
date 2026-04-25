@@ -3,9 +3,20 @@ using UnityEngine;
 
 public class PlayerHealth : MonoBehaviour
 {
+    [Header("Health")]
+    [Tooltip("Maximum player health points at scene start.")]
+    [Min(1f)]
     [SerializeField] private float maxHealth = 100f;
+
+    [Space]
+    [Header("Death Behavior")]
+    [Tooltip("If enabled, assigned player control behaviours are disabled when the player dies.")]
     [SerializeField] private bool disableControlsOnDeath = true;
+
+    [Tooltip("Behaviours disabled when the player dies, such as movement, aiming, and shooting.")]
     [SerializeField] private MonoBehaviour[] behavioursToDisableOnDeath;
+
+    [Tooltip("If enabled, player renderers and colliders are hidden when the player dies.")]
     [SerializeField] private bool hidePlayerOnDeath = true;
 
     private float currentHealth;

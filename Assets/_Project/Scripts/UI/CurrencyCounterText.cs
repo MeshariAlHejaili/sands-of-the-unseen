@@ -3,8 +3,16 @@ using UnityEngine.UI;
 
 public class CurrencyCounterText : MonoBehaviour
 {
+    [Header("References")]
+    [Tooltip("Player wallet that provides the current currency value; if empty, it is resolved by the Player tag.")]
     [SerializeField] private PlayerCurrencyWallet playerWallet;
+
+    [Tooltip("UI text component that displays the current currency amount.")]
     [SerializeField] private Text targetText;
+
+    [Space]
+    [Header("Display")]
+    [Tooltip("Text prefix shown before the numeric currency amount.")]
     [SerializeField] private string prefix = "Currency: ";
 
     private bool isSubscribed;

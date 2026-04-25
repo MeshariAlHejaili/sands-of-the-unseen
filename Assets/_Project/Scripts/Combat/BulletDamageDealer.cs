@@ -2,7 +2,12 @@ using UnityEngine;
 
 public class BulletDamageDealer : MonoBehaviour
 {
+    [Header("Hit Detection")]
+    [Tooltip("Radius in world units used by the bullet sphere cast.")]
+    [Min(0f)]
     [SerializeField] private float hitRadius = 0.12f;
+
+    [Tooltip("Physics layers that can be hit by this bullet.")]
     [SerializeField] private LayerMask enemyLayers = ~0;
 
     private Bullet bullet;

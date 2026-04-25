@@ -4,10 +4,25 @@ using UnityEngine.UI;
 
 public class EnemyHealthBar : MonoBehaviour
 {
+    [Header("References")]
+    [Tooltip("World-space canvas that contains the enemy health bar.")]
     [SerializeField] private Canvas worldCanvas;
+
+    [Tooltip("UI image whose fill amount displays the enemy health percentage.")]
     [SerializeField] private Image fillImage;
+
+    [Tooltip("Damage popup prefab spawned above the enemy when it takes damage.")]
     [SerializeField] private DamagePopup damagePopupPrefab;
+
+    [Space]
+    [Header("Positioning")]
+    [Tooltip("World-space offset from the enemy position to the health bar.")]
     [SerializeField] private Vector3 barOffset = new Vector3(0f, 1.6f, 0f);
+
+    [Space]
+    [Header("Pooling")]
+    [Tooltip("Number of damage popups created in the initial pool.")]
+    [Min(0)]
     [SerializeField] private int initialDamagePopupPoolSize = 4;
 
     private EnemyHealth enemyHealth;

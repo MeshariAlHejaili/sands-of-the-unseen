@@ -3,6 +3,9 @@ using UnityEngine;
 
 public class PlayerCurrencyWallet : MonoBehaviour
 {
+    [Header("Currency")]
+    [Tooltip("Currency amount the player starts with at scene load.")]
+    [Min(0)]
     [SerializeField] private int startingCurrency;
 
     private int currentCurrency;

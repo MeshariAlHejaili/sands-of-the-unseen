@@ -3,7 +3,13 @@ using UnityEngine;
 
 public class Bullet : MonoBehaviour
 {
+    [Header("Movement")]
+    [Tooltip("Forward travel speed in world units per second.")]
+    [Min(0f)]
     [SerializeField] private float speed = 20f;
+
+    [Tooltip("Time in seconds before this bullet returns to its pool.")]
+    [Min(0.01f)]
     [SerializeField] private float lifeTime = 3f;
 
     private float damage;

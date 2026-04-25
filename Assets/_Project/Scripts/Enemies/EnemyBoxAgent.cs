@@ -3,15 +3,36 @@ using UnityEngine;
 public class EnemyBoxAgent : MonoBehaviour
 {
     [Header("Base Stats")]
+    [Tooltip("Base maximum health before wave health scaling is applied.")]
+    [Min(1f)]
     [SerializeField] private float maxHealth = 30f;
+
+    [Tooltip("Base movement speed in world units per second before wave speed scaling is applied.")]
+    [Min(0f)]
     [SerializeField] private float moveSpeed = 3.5f;
+
+    [Tooltip("Base melee contact damage in health points before wave damage scaling is applied.")]
+    [Min(0f)]
     [SerializeField] private float contactDamage = 10f;
+
+    [Tooltip("Cooldown in seconds between repeated contact damage ticks.")]
+    [Min(0f)]
     [SerializeField] private float contactDamageCooldown = 1f;
+
+    [Tooltip("Horizontal distance in world units within which contact damage can be applied.")]
+    [Min(0f)]
     [SerializeField] private float contactRange = 1.35f;
 
+    [Space]
     [Header("Drops")]
+    [Tooltip("Currency orb prefab spawned when this enemy dies.")]
     [SerializeField] private CurrencyOrbPickup currencyOrbPrefab;
+
+    [Tooltip("Base currency amount dropped when this enemy dies.")]
+    [Min(1)]
     [SerializeField] private int currencyValue = 1;
+
+    [Tooltip("World-space offset from the enemy position where the currency orb appears.")]
     [SerializeField] private Vector3 dropOffset = new Vector3(0f, 0.5f, 0f);
 
     private EnemyHealth enemyHealth;

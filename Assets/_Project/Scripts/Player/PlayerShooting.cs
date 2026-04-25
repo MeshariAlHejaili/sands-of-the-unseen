@@ -4,11 +4,19 @@ using UnityEngine;
 public class PlayerShooting : MonoBehaviour
 {
     [Header("Bullet Settings")]
+    [Tooltip("Bullet prefab spawned by the player's weapon and stored in the bullet pool.")]
     [SerializeField] private GameObject bulletPrefab;
+
+    [Tooltip("Transform used as the bullet spawn position and forward firing direction.")]
     [SerializeField] private Transform firePoint;
 
+    [Space]
     [Header("Audio")]
+    [Tooltip("Audio clip played once for each fired bullet.")]
     [SerializeField] private AudioClip shootSound;
+
+    [Tooltip("Shot sound playback volume from 0 to 1.")]
+    [Range(0f, 1f)]
     [SerializeField] private float volume = 0.5f;
 
     private float nextFireTime;
@@ -34,15 +42,15 @@ public class PlayerShooting : MonoBehaviour
         Bullet prefabBullet = bulletPrefab.GetComponent<Bullet>();
         bulletLifetime = prefabBullet != null ? prefabBullet.LifeTime : 3f;
 
-        lastKnownFireRate = stats.fireRate;
+        lastKnownFireRate = stats.FireRate;
         EnsurePoolCapacity();
     }
 
     private void Update()
     {
-        if (stats.fireRate != lastKnownFireRate)
+        if (stats.FireRate != lastKnownFireRate)
         {
-            lastKnownFireRate = stats.fireRate;
+            lastKnownFireRate = stats.FireRate;
             EnsurePoolCapacity();
         }
 
@@ -55,19 +63,19 @@ public class PlayerShooting : MonoBehaviour
 
         Bullet bullet = GetBulletFromPool();
         bullet.transform.SetPositionAndRotation(firePoint.position, firePoint.rotation);
-        bullet.Init(stats.bulletDamage, ReturnBulletToPool);
+        bullet.Init(stats.BulletDamage, ReturnBulletToPool);
         bullet.gameObject.SetActive(true);
 
         if (shootSound != null)
             audioSource.PlayOneShot(shootSound, volume);
 
-        nextFireTime = Time.time + 1f / stats.fireRate;
+        nextFireTime = Time.time + 1f / stats.FireRate;
     }
 
     private void EnsurePoolCapacity()
     {
         // +2 safety margin so there is always a ready bullet even mid-burst
-        int needed = Mathf.CeilToInt(stats.fireRate * bulletLifetime) + 2;
+        int needed = Mathf.CeilToInt(stats.FireRate * bulletLifetime) + 2;
         int toCreate = needed - totalBulletsCreated;
         for (int i = 0; i < toCreate; i++)
             CreatePooledBullet();

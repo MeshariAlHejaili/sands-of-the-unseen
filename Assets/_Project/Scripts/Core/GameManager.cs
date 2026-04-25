@@ -6,7 +6,14 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
 
+    [Header("References")]
+    [Tooltip("Player health component observed for death and scene restart.")]
     [SerializeField] private PlayerHealth playerHealth;
+
+    [Space]
+    [Header("Restart")]
+    [Tooltip("Delay in seconds between player death and scene reload.")]
+    [Min(0f)]
     [SerializeField] private float restartDelay = 1.25f;
 
     private void Awake()

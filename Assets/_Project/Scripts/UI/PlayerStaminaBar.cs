@@ -3,7 +3,11 @@ using UnityEngine.UI;
 
 public class PlayerStaminaBar : MonoBehaviour
 {
+    [Header("References")]
+    [Tooltip("Player stats component that provides stamina values and change events.")]
     [SerializeField] private PlayerStats playerStats;
+
+    [Tooltip("UI image whose fill amount displays the player's current stamina percentage.")]
     [SerializeField] private Image fillImage;
 
     private void Start()
@@ -18,7 +22,7 @@ public class PlayerStaminaBar : MonoBehaviour
         if (playerStats != null)
         {
             playerStats.StaminaChanged += OnStaminaChanged;
-            OnStaminaChanged(playerStats.CurrentStamina, playerStats.maxStamina);
+            OnStaminaChanged(playerStats.CurrentStamina, playerStats.MaxStamina);
         }
     }
 

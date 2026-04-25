@@ -3,10 +3,27 @@ using UnityEngine;
 
 public class CurrencyOrbPickup : MonoBehaviour
 {
+    [Header("Currency")]
+    [Tooltip("Currency amount awarded when this orb is collected.")]
+    [Min(1)]
     [SerializeField] private int value = 1;
+
+    [Tooltip("Horizontal pickup radius around the player in world units.")]
+    [Min(0f)]
     [SerializeField] private float collectRadius = 1.25f;
+
+    [Space]
+    [Header("Animation")]
+    [Tooltip("Orb rotation speed in degrees per second.")]
+    [Min(0f)]
     [SerializeField] private float rotationSpeed = 90f;
+
+    [Tooltip("Vertical bob distance in world units.")]
+    [Min(0f)]
     [SerializeField] private float bobAmplitude = 0.15f;
+
+    [Tooltip("Vertical bob oscillation frequency in cycles per second.")]
+    [Min(0f)]
     [SerializeField] private float bobFrequency = 2f;
 
     private PlayerCurrencyWallet playerWallet;

@@ -2,6 +2,9 @@ using UnityEngine;
 
 public class PlayerAim : MonoBehaviour
 {
+    [Header("Aiming")]
+    [Tooltip("Rotation interpolation speed while turning toward the mouse cursor.")]
+    [Min(0f)]
     [SerializeField] private float rotationSpeed = 20f;
 
     private Camera cam;

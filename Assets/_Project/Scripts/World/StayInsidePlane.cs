@@ -2,8 +2,15 @@ using UnityEngine;
 
 public class StayInsidePlane : MonoBehaviour
 {
+    [Header("Ground Bounds")]
+    [Tooltip("Name of the GameObject whose collider defines the playable ground bounds.")]
     [SerializeField] private string groundObjectName = "Ground";
+
+    [Tooltip("Collider whose horizontal extents should remain inside the ground bounds; if empty, this object's collider is used.")]
     [SerializeField] private Collider targetCollider;
+
+    [Tooltip("Extra inward spacing from the ground edge in world units.")]
+    [Min(0f)]
     [SerializeField] private float padding = 0.05f;
 
     private Collider groundCollider;

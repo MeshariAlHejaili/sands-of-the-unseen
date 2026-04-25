@@ -5,24 +5,59 @@ using UnityEngine;
 public class EnemyWaveSpawner : MonoBehaviour
 {
     [Header("References")]
+    [Tooltip("Enemy prefab spawned and pooled by this wave spawner.")]
     [SerializeField] private EnemyBoxAgent enemyPrefab;
+
+    [Tooltip("Player transform used as the enemy target; if empty, it is resolved by the Player tag.")]
     [SerializeField] private Transform player;
+
+    [Tooltip("Fixed world spawn points used to distribute enemies around the arena.")]
     [SerializeField] private Transform[] spawnPoints;
 
+    [Space]
     [Header("Wave Settings")]
+    [Tooltip("Number of enemies spawned in the first wave.")]
+    [Min(1)]
     [SerializeField] private int startingEnemiesPerWave = 3;
+
+    [Tooltip("Additional enemies added to each new wave.")]
+    [Min(0)]
     [SerializeField] private int enemiesPerWaveGrowth = 1;
+
+    [Tooltip("Delay in seconds before the first wave starts.")]
+    [Min(0f)]
     [SerializeField] private float initialDelay = 1f;
+
+    [Tooltip("Delay in seconds after a wave is cleared before the next wave starts.")]
+    [Min(0f)]
     [SerializeField] private float delayBetweenWaves = 3f;
 
+    [Space]
     [Header("Power Scaling")]
+    [Tooltip("Additional enemy health multiplier added per wave, expressed as a decimal fraction.")]
+    [Min(0f)]
     [SerializeField] private float healthGrowthPerWave = 0.2f;
+
+    [Tooltip("Additional enemy damage multiplier added per wave, expressed as a decimal fraction.")]
+    [Min(0f)]
     [SerializeField] private float damageGrowthPerWave = 0.15f;
+
+    [Tooltip("Additional enemy speed multiplier added per wave, expressed as a decimal fraction.")]
+    [Min(0f)]
     [SerializeField] private float speedGrowthPerWave = 0.05f;
+
+    [Tooltip("Flat bonus currency added to enemy drops for each wave survived.")]
+    [Min(0)]
     [SerializeField] private int currencyGrowthEveryWave = 0;
 
+    [Space]
     [Header("Pooling")]
+    [Tooltip("Number of enemies created in the initial pool before waves begin.")]
+    [Min(0)]
     [SerializeField] private int initialPoolSize = 6;
+
+    [Tooltip("Number of currency orbs created in the initial orb pool once an orb prefab is known.")]
+    [Min(0)]
     [SerializeField] private int initialCurrencyOrbPoolSize = 12;
 
     private readonly HashSet<EnemyBoxAgent> activeEnemies = new HashSet<EnemyBoxAgent>();

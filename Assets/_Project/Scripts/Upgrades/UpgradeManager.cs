@@ -5,12 +5,23 @@ using UnityEngine;
 public class UpgradeManager : MonoBehaviour
 {
     [Header("References")]
+    [Tooltip("Player wallet used to track collected currency toward the next upgrade.")]
     [SerializeField] private PlayerCurrencyWallet playerWallet;
+
+    [Tooltip("Upgrade library containing the pool of upgrades that can be offered.")]
     [SerializeField] private UpgradeLibrary upgradeLibrary;
+
+    [Tooltip("Upgrade menu UI used to display random upgrade choices.")]
     [SerializeField] private UpgradeMenuUI upgradeMenuUI;
 
+    [Space]
     [Header("Threshold Scaling")]
+    [Tooltip("Currency required to trigger the first upgrade choice.")]
+    [Min(1)]
     [SerializeField] private int baseThreshold = 2;
+
+    [Tooltip("Additional currency required for each later upgrade level.")]
+    [Min(0)]
     [SerializeField] private int thresholdGrowth = 2;
 
     private int upgradeLevel;

@@ -3,13 +3,18 @@ using UnityEngine;
 public class CameraFollow : MonoBehaviour
 {
     [Header("Target")]
+    [Tooltip("Transform the camera follows, usually the player.")]
     [SerializeField] private Transform playerTransform;
 
+    [Space]
     [Header("Positioning")]
-    // The distance between the camera and the player
+    [Tooltip("Camera offset from the target in world units.")]
     [SerializeField] private Vector3 offset = new Vector3(0f, 10f, -5f);
 
+    [Space]
     [Header("Smoothing")]
+    [Tooltip("How quickly the camera interpolates toward the target position.")]
+    [Min(0f)]
     [SerializeField] private float smoothSpeed = 10f;
 
     void LateUpdate()

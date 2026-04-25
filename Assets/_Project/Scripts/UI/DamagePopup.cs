@@ -4,8 +4,18 @@ using UnityEngine;
 
 public class DamagePopup : MonoBehaviour
 {
+    [Header("References")]
+    [Tooltip("World text mesh used to display the damage number.")]
     [SerializeField] private TextMesh textMesh;
+
+    [Space]
+    [Header("Animation")]
+    [Tooltip("Upward movement speed in world units per second.")]
+    [Min(0f)]
     [SerializeField] private float floatSpeed = 1.5f;
+
+    [Tooltip("Time in seconds before the popup fades out and returns to its pool.")]
+    [Min(0.01f)]
     [SerializeField] private float lifetime = 0.8f;
 
     private Camera mainCamera;

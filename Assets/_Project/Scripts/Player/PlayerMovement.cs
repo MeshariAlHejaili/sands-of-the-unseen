@@ -4,7 +4,11 @@ using System.Collections;
 public class PlayerMovement : MonoBehaviour
 {  
     [Header("Audio")]
+    [Tooltip("Audio clip played once when the player starts a dash.")]
     [SerializeField] private AudioClip dashSound;
+
+    [Tooltip("Dash sound playback volume from 0 to 1.")]
+    [Range(0f, 1f)]
     [SerializeField] private float volume = 0.5f;
 
     private PlayerStats stats;
@@ -51,7 +55,7 @@ public class PlayerMovement : MonoBehaviour
             // 2. Only check for sprint/drain stamina if we are actively moving and holding Shift Key
             if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
             {
-                float drainThisFrame = stats.staminaDrainPerSecond * Time.deltaTime;
+                float drainThisFrame = stats.StaminaDrainPerSecond * Time.deltaTime;
                 
                 if (stats.UseStamina(drainThisFrame))
                 {
@@ -60,7 +64,7 @@ public class PlayerMovement : MonoBehaviour
             }
 
             // 3. Apply the correct speed
-            float currentSpeed = isSprinting ? stats.sprintSpeed : stats.moveSpeed;
+            float currentSpeed = isSprinting ? stats.SprintSpeed : stats.MoveSpeed;
 
             // 4. Move the character
             transform.Translate(movement.normalized * currentSpeed * Time.deltaTime, Space.World);
@@ -69,7 +73,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void AttemptDash()
     {
-        if (stats.UseStamina(stats.dashStaminaCost))
+        if (stats.UseStamina(stats.DashStaminaCost))
         {
             float h = Input.GetAxisRaw("Horizontal");
             float v = Input.GetAxisRaw("Vertical");
@@ -91,17 +95,17 @@ public class PlayerMovement : MonoBehaviour
         
         float startTime = Time.unscaledTime;
         Vector3 startPos = transform.position;
-        Vector3 targetPos = startPos + (direction * stats.dashDistance);
+        Vector3 targetPos = startPos + (direction * stats.DashDistance);
 
         if (dashSound != null)
         {
             audioSource.PlayOneShot(dashSound, volume);
         }
 
-        while (Time.unscaledTime < startTime + stats.dashDuration)
+        while (Time.unscaledTime < startTime + stats.DashDuration)
         {
             // Calculate how far through the dash we are (0.0 to 1.0)
-            float elapsed = (Time.unscaledTime - startTime) / stats.dashDuration;
+            float elapsed = (Time.unscaledTime - startTime) / stats.DashDuration;
             
             // Move smoothly between start and end
             transform.position = Vector3.Lerp(startPos, targetPos, elapsed);
