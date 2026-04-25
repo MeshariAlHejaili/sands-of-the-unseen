@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class EnemyBoxAgent : MonoBehaviour
@@ -20,6 +21,7 @@ public class EnemyBoxAgent : MonoBehaviour
     private PlayerHealth playerHealth;
     private Transform playerTransform;
     private float currentHealth;
+    private float currentMaxHealth;
     private float halfHeight = 0.5f;
     private float nextDamageTime;
     private float currentMoveSpeed;
@@ -29,6 +31,11 @@ public class EnemyBoxAgent : MonoBehaviour
     private bool isAlive;
 
     public bool IsAlive => isAlive;
+
+    // damage amount, current health, max health
+    public event Action<float, float, float> Damaged;
+    // current health, max health — fired when enemy spawns so the bar can initialise
+    public event Action<float, float> Spawned;
 
     private void Awake()
     {
@@ -66,7 +73,8 @@ public class EnemyBoxAgent : MonoBehaviour
         playerTransform = target;
         playerHealth = targetHealth;
         ownerSpawner = spawner;
-        currentHealth = maxHealth * Mathf.Max(0.1f, healthMultiplier);
+        currentMaxHealth = maxHealth * Mathf.Max(0.1f, healthMultiplier);
+        currentHealth = currentMaxHealth;
         currentMoveSpeed = moveSpeed * Mathf.Max(0.1f, speedMultiplier);
         currentContactDamage = contactDamage * Mathf.Max(0.1f, damageMultiplier);
         currentCurrencyValue = Mathf.Max(1, currencyValue + bonusCurrency);
@@ -80,20 +88,18 @@ public class EnemyBoxAgent : MonoBehaviour
 
         SetVisualAndCollisionState(true);
         gameObject.SetActive(true);
+        Spawned?.Invoke(currentHealth, currentMaxHealth);
     }
 
     public void TakeDamage(float amount)
     {
-        if (!isAlive || amount <= 0f)
-        {
-            return;
-        }
+        if (!isAlive || amount <= 0f) return;
 
-        currentHealth -= amount;
+        currentHealth = Mathf.Max(0f, currentHealth - amount);
+        Damaged?.Invoke(amount, currentHealth, currentMaxHealth);
+
         if (currentHealth <= 0f)
-        {
             Die();
-        }
     }
 
     public void ReturnToPool()
