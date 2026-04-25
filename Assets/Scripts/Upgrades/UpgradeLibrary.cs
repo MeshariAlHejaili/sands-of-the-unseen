@@ -4,5 +4,6 @@ using UnityEngine;
 [CreateAssetMenu(menuName = "Upgrades/Upgrade Library")]
 public class UpgradeLibrary : ScriptableObject
 {
-    public List<UpgradeDefinition> availableUpgrades;
+    [SerializeField] private List<UpgradeDefinition> availableUpgrades;
+    public IReadOnlyList<UpgradeDefinition> AvailableUpgrades => availableUpgrades;
 }

@@ -14,10 +14,13 @@ public class UpgradeCardUI : MonoBehaviour
     {
         boundUpgrade = upgrade;
         upgradeManager = manager;
-        nameText.text = upgrade.upgradeName;
-        descriptionText.text = upgrade.description;
-        selectButton.onClick.RemoveAllListeners();
-        selectButton.onClick.AddListener(OnSelected);
+        if (nameText != null) nameText.text = upgrade.upgradeName;
+        if (descriptionText != null) descriptionText.text = upgrade.description;
+        if (selectButton != null)
+        {
+            selectButton.onClick.RemoveAllListeners();
+            selectButton.onClick.AddListener(OnSelected);
+        }
     }
 
     private void OnSelected()

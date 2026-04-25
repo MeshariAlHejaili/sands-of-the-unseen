@@ -89,7 +89,7 @@ public class PlayerMovement : MonoBehaviour
     {
         isDashing = true;
         
-        float startTime = Time.time;
+        float startTime = Time.unscaledTime;
         Vector3 startPos = transform.position;
         Vector3 targetPos = startPos + (direction * stats.dashDistance);
 
@@ -98,10 +98,10 @@ public class PlayerMovement : MonoBehaviour
             audioSource.PlayOneShot(dashSound, volume);
         }
 
-        while (Time.time < startTime + stats.dashDuration)
+        while (Time.unscaledTime < startTime + stats.dashDuration)
         {
             // Calculate how far through the dash we are (0.0 to 1.0)
-            float elapsed = (Time.time - startTime) / stats.dashDuration;
+            float elapsed = (Time.unscaledTime - startTime) / stats.dashDuration;
             
             // Move smoothly between start and end
             transform.position = Vector3.Lerp(startPos, targetPos, elapsed);

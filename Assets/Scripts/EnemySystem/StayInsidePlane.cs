@@ -16,19 +16,17 @@ public class StayInsidePlane : MonoBehaviour
         }
 
         ResolveGroundCollider();
+
+        if (groundCollider == null)
+        {
+            Debug.LogWarning($"StayInsidePlane: no GameObject named '{groundObjectName}' found. Component disabled.", this);
+            enabled = false;
+        }
     }
 
     private void LateUpdate()
     {
-        if (groundCollider == null)
-        {
-            ResolveGroundCollider();
-        }
-
-        if (groundCollider == null)
-        {
-            return;
-        }
+        if (groundCollider == null) return;
 
         Bounds groundBounds = groundCollider.bounds;
         Vector3 position = transform.position;

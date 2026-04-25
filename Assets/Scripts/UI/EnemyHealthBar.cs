@@ -8,26 +8,39 @@ public class EnemyHealthBar : MonoBehaviour
     [SerializeField] private DamagePopup damagePopupPrefab;
     [SerializeField] private Vector3 barOffset = new Vector3(0f, 1.6f, 0f);
 
-    private EnemyBoxAgent enemy;
+    private EnemyHealth enemyHealth;
     private Camera mainCamera;
 
     private void Awake()
     {
-        enemy = GetComponent<EnemyBoxAgent>();
+        enemyHealth = GetComponent<EnemyHealth>();
+        if (enemyHealth == null)
+        {
+            Debug.LogWarning("EnemyHealthBar requires EnemyHealth on the same GameObject.", this);
+            enabled = false;
+            return;
+        }
         mainCamera = Camera.main;
         worldCanvas.gameObject.SetActive(false);
     }
 
     private void OnEnable()
     {
-        enemy.Spawned += OnSpawned;
-        enemy.Damaged += OnDamaged;
+        if (enemyHealth == null) return;
+        enemyHealth.Damaged += OnDamaged;
+
+        if (enemyHealth.MaxHealth > 0f)
+        {
+            fillImage.fillAmount = enemyHealth.CurrentHealth / enemyHealth.MaxHealth;
+            worldCanvas.gameObject.SetActive(true);
+        }
     }
 
     private void OnDisable()
     {
-        enemy.Spawned -= OnSpawned;
-        enemy.Damaged -= OnDamaged;
+        if (enemyHealth == null) return;
+        enemyHealth.Damaged -= OnDamaged;
+        worldCanvas.gameObject.SetActive(false);
     }
 
     private void LateUpdate()
@@ -36,12 +49,6 @@ public class EnemyHealthBar : MonoBehaviour
 
         worldCanvas.transform.position = transform.position + barOffset;
         worldCanvas.transform.rotation = mainCamera.transform.rotation;
-    }
-
-    private void OnSpawned(float current, float max)
-    {
-        fillImage.fillAmount = 1f;
-        worldCanvas.gameObject.SetActive(true);
     }
 
     private void OnDamaged(float amount, float current, float max)

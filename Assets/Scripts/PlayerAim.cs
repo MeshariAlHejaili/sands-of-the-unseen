@@ -4,6 +4,13 @@ public class PlayerAim : MonoBehaviour
 {
     [SerializeField] private float rotationSpeed = 20f;
 
+    private Camera cam;
+
+    private void Awake()
+    {
+        cam = Camera.main;
+    }
+
     void Update()
     {
         HandleRotation();
@@ -16,7 +23,7 @@ public class PlayerAim : MonoBehaviour
         Plane playerPlane = new Plane(Vector3.up, transform.position);
 
         // Cast a ray from the camera through the mouse position
-        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        Ray ray = cam.ScreenPointToRay(Input.mousePosition);
 
         if (playerPlane.Raycast(ray, out float hitDist))
         {

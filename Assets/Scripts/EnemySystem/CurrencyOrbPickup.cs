@@ -28,7 +28,7 @@ public class CurrencyOrbPickup : MonoBehaviour
         if (Time.timeScale == 0f) return;
 
         Animate();
-        ResolvePlayer();
+        if (playerTransform == null || playerWallet == null) ResolvePlayer();
 
         if (playerTransform == null || playerWallet == null)
         {
@@ -61,7 +61,7 @@ public class CurrencyOrbPickup : MonoBehaviour
             return;
         }
 
-        GameObject playerObject = GameObject.FindGameObjectWithTag("Player");
+        GameObject playerObject = GameObject.FindGameObjectWithTag(GameTags.Player);
         if (playerObject == null)
         {
             return;

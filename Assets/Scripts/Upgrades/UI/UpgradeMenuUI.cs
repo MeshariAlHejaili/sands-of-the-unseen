@@ -9,11 +9,17 @@ public class UpgradeMenuUI : MonoBehaviour
 
     private void Awake()
     {
+        if (panel == null)
+        {
+            Debug.LogWarning("UpgradeMenuUI: 'panel' is not assigned in the Inspector.", this);
+            return;
+        }
         panel.SetActive(false);
     }
 
     public void Show(List<UpgradeDefinition> upgrades)
     {
+        if (panel == null) return;
         panel.SetActive(true);
         for (int i = 0; i < cards.Length; i++)
         {
@@ -26,6 +32,7 @@ public class UpgradeMenuUI : MonoBehaviour
 
     public void Hide()
     {
+        if (panel == null) return;
         panel.SetActive(false);
     }
 }

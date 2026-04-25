@@ -1,7 +1,5 @@
 using System;
-using System.Collections;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 public class PlayerHealth : MonoBehaviour
 {
@@ -9,7 +7,6 @@ public class PlayerHealth : MonoBehaviour
     [SerializeField] private bool disableControlsOnDeath = true;
     [SerializeField] private MonoBehaviour[] behavioursToDisableOnDeath;
     [SerializeField] private bool hidePlayerOnDeath = true;
-    [SerializeField] private float restartDelay = 1.25f;
 
     private float currentHealth;
     private Collider[] cachedColliders;
@@ -71,7 +68,6 @@ public class PlayerHealth : MonoBehaviour
 
         Died?.Invoke();
         Debug.Log("Player died.");
-        StartCoroutine(RestartSceneRoutine());
     }
 
     private void DisableAssignedBehaviours()
@@ -113,16 +109,5 @@ public class PlayerHealth : MonoBehaviour
                 }
             }
         }
-    }
-
-    private IEnumerator RestartSceneRoutine()
-    {
-        if (restartDelay > 0f)
-        {
-            yield return new WaitForSeconds(restartDelay);
-        }
-
-        Scene activeScene = SceneManager.GetActiveScene();
-        SceneManager.LoadScene(activeScene.buildIndex);
     }
 }

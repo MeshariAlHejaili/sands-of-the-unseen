@@ -37,9 +37,9 @@ public class BulletDamageDealer : MonoBehaviour
             EnemyBoxAgent enemy = hit.collider.GetComponentInParent<EnemyBoxAgent>();
             if (enemy != null && enemy.IsAlive)
             {
-                float damage = bullet != null ? bullet.damage : 0f;
+                float damage = bullet != null ? bullet.Damage : 0f;
                 enemy.TakeDamage(damage);
-                Destroy(gameObject);
+                bullet?.ReturnToPool();
                 return;
             }
         }

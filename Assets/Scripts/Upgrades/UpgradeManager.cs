@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -18,8 +17,6 @@ public class UpgradeManager : MonoBehaviour
     private int coinsCollectedSinceLastUpgrade;
     private int lastKnownCurrency;
     private bool isUpgradeActive;
-
-    public event Action<List<UpgradeDefinition>> UpgradesReady;
 
     private int CurrentThreshold => baseThreshold + upgradeLevel * thresholdGrowth;
 
@@ -55,7 +52,6 @@ public class UpgradeManager : MonoBehaviour
         Time.timeScale = 0f;
         var picks = PickRandomUpgrades(3);
         upgradeMenuUI.Show(picks);
-        UpgradesReady?.Invoke(picks);
     }
 
     public void ApplyUpgrade(UpgradeDefinition chosen)
@@ -70,7 +66,7 @@ public class UpgradeManager : MonoBehaviour
 
     private List<UpgradeDefinition> PickRandomUpgrades(int count)
     {
-        var pool = new List<UpgradeDefinition>(upgradeLibrary.availableUpgrades);
+        var pool = new List<UpgradeDefinition>(upgradeLibrary.AvailableUpgrades);
         var result = new List<UpgradeDefinition>();
         count = Mathf.Min(count, pool.Count);
 
