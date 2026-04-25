@@ -32,7 +32,6 @@ public class PlayerStats : MonoBehaviour
     void Update()
     {
         HandleStaminaRegeneration();
-        Debug.Log("Stamina:" + currentStamina);
     }
 
     /// Governs the logic for refilling the stamina bar over time.
