@@ -73,3 +73,7 @@ crashlytics-build.properties
 # Temporary auto-generated Android Assets
 /[Aa]ssets/[Ss]treamingAssets/aa.meta
 /[Aa]ssets/[Ss]treamingAssets/aa/*
+.idea/.idea.sands-of-the-unseen/.idea/indexLayout.xml
+.idea/.idea.sands-of-the-unseen/.idea/projectSettingsUpdater.xml
+.idea/.idea.sands-of-the-unseen/.idea/vcs.xml
+.idea/.idea.sands-of-the-unseen/.idea/workspace.xml
