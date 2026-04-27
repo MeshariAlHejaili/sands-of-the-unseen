@@ -167,7 +167,7 @@ GameObject:
   - component: {fileID: 3106155925250405614}
   - component: {fileID: 8368789765717546397}
   - component: {fileID: 3937825130622685892}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: EnemyBox
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -319,6 +319,7 @@ MonoBehaviour:
   fillImage: {fileID: 8471205351776297351}
   damagePopupPrefab: {fileID: 3380216428703323051, guid: 04467e7068b788d47b90f4d4fbbd685e, type: 3}
   barOffset: {x: 0, y: 2, z: 0}
+  initialDamagePopupPoolSize: 4
 --- !u!114 &8368789765717546397
 MonoBehaviour:
   m_ObjectHideFlags: 0

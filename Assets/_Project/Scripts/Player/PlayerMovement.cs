@@ -1,6 +1,11 @@
-using UnityEngine;
 using System.Collections;
+using UnityEngine;
 
+/// <summary>
+/// Handles player input, stamina spending, and dash timing while delegating collision-safe movement to PlayerCollisionMotor.
+/// </summary>
+[RequireComponent(typeof(PlayerStats))]
+[RequireComponent(typeof(PlayerCollisionMotor))]
 public class PlayerMovement : MonoBehaviour
 {  
     [Header("Audio")]
@@ -12,15 +17,22 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float volume = 0.5f;
 
     private PlayerStats stats;
+    private PlayerCollisionMotor collisionMotor;
     private AudioSource audioSource;
-    private bool isDashing = false;
+    private Coroutine dashCoroutine;
+    private bool isDashing;
 
-    void Start()
+    private void Awake()
     {
         stats = GetComponent<PlayerStats>();
+        collisionMotor = GetComponent<PlayerCollisionMotor>();
         audioSource = GetComponent<AudioSource>();
 
-        // Ensure an AudioSource exists on the Player
+        if (collisionMotor == null)
+        {
+            collisionMotor = gameObject.AddComponent<PlayerCollisionMotor>();
+        }
+
         if (audioSource == null)
         {
             audioSource = gameObject.AddComponent<AudioSource>();
@@ -28,9 +40,19 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    void Update()
+    private void OnDisable()
     {
-        // Stop all input/logic if the player is currently in a dash
+        if (dashCoroutine != null)
+        {
+            StopCoroutine(dashCoroutine);
+            dashCoroutine = null;
+        }
+
+        isDashing = false;
+    }
+
+    private void Update()
+    {
         if (isDashing) return;
 
         HandleMovement();
@@ -46,29 +68,17 @@ public class PlayerMovement : MonoBehaviour
         float horizontal = Input.GetAxisRaw("Horizontal");
         float vertical = Input.GetAxisRaw("Vertical");
 
-        Vector3 movement = new Vector3(horizontal, 0, vertical);
-        bool isSprinting = false;
-
-        // 1. Process movement and stamina if the player is actually pressing WASD
-        if (movement.magnitude > 0.1f)
+        Vector3 moveDirection = new Vector3(horizontal, 0f, vertical);
+        if (moveDirection.sqrMagnitude <= 0.01f)
         {
-            // 2. Only check for sprint/drain stamina if we are actively moving and holding Shift Key
-            if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
-            {
-                float drainThisFrame = stats.StaminaDrainPerSecond * Time.deltaTime;
-                
-                if (stats.UseStamina(drainThisFrame))
-                {
-                    isSprinting = true;
-                }
-            }
-
-            // 3. Apply the correct speed
-            float currentSpeed = isSprinting ? stats.SprintSpeed : stats.MoveSpeed;
-
-            // 4. Move the character
-            transform.Translate(movement.normalized * currentSpeed * Time.deltaTime, Space.World);
+            return;
         }
+
+        bool isSprinting = TryUseSprintStamina();
+        float currentSpeed = isSprinting ? stats.SprintSpeed : stats.MoveSpeed;
+        Vector3 displacement = moveDirection.normalized * currentSpeed * Time.deltaTime;
+
+        collisionMotor.Move(displacement, true, out _);
     }
 
     private void AttemptDash()
@@ -82,39 +92,72 @@ public class PlayerMovement : MonoBehaviour
             // If standing still, dash in the direction the player is facing
             if (dashDirection.sqrMagnitude < 0.01f)
             {
-                dashDirection = transform.forward;
+                dashDirection = GetForwardDashDirection();
             }
 
-            StartCoroutine(DashRoutine(dashDirection));
+            dashCoroutine = StartCoroutine(DashRoutine(dashDirection.normalized));
         }
     }
 
     private IEnumerator DashRoutine(Vector3 direction)
     {
         isDashing = true;
-        
-        float startTime = Time.unscaledTime;
-        Vector3 startPos = transform.position;
-        Vector3 targetPos = startPos + (direction * stats.DashDistance);
+        float remainingDistance = stats.DashDistance;
+        float dashDuration = Mathf.Max(0.01f, stats.DashDuration);
+        float dashSpeed = remainingDistance / dashDuration;
 
         if (dashSound != null)
         {
             audioSource.PlayOneShot(dashSound, volume);
         }
 
-        while (Time.unscaledTime < startTime + stats.DashDuration)
+        while (remainingDistance > 0f)
         {
-            // Calculate how far through the dash we are (0.0 to 1.0)
-            float elapsed = (Time.unscaledTime - startTime) / stats.DashDuration;
-            
-            // Move smoothly between start and end
-            transform.position = Vector3.Lerp(startPos, targetPos, elapsed);
-            
+            float stepDistance = Mathf.Min(remainingDistance, dashSpeed * Time.unscaledDeltaTime);
+            if (stepDistance <= Mathf.Epsilon)
+            {
+                yield return null;
+                continue;
+            }
+
+            Vector3 requestedDisplacement = direction * stepDistance;
+            Vector3 movedDisplacement = collisionMotor.Move(requestedDisplacement, false, out RaycastHit blockingHit);
+
+            remainingDistance -= movedDisplacement.magnitude;
+
+            if (blockingHit.collider != null || movedDisplacement.sqrMagnitude < requestedDisplacement.sqrMagnitude - 0.0001f)
+            {
+                break;
+            }
+
             yield return null; 
         }
 
-        transform.position = targetPos;
         isDashing = false;
+        dashCoroutine = null;
     }
 
+    private bool TryUseSprintStamina()
+    {
+        if (!Input.GetKey(KeyCode.LeftShift) && !Input.GetKey(KeyCode.RightShift))
+        {
+            return false;
+        }
+
+        float drainThisFrame = stats.StaminaDrainPerSecond * Time.deltaTime;
+        return stats.UseStamina(drainThisFrame);
+    }
+
+    private Vector3 GetForwardDashDirection()
+    {
+        Vector3 forward = transform.forward;
+        forward.y = 0f;
+
+        if (forward.sqrMagnitude <= 0.01f)
+        {
+            return Vector3.forward;
+        }
+
+        return forward.normalized;
+    }
 }
