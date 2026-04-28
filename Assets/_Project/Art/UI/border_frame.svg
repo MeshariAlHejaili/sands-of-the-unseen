@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" fill="none" stroke="#c9a875" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" preserveAspectRatio="none">
+
+  <!-- ============ TOP EDGE — broken segments ============ -->
+  <line x1="120" y1="60" x2="320" y2="60" />
+  <line x1="360" y1="60" x2="680" y2="60" opacity="0.65" />
+  <line x1="720" y1="60" x2="940" y2="60" />
+  
+  <!-- Top center diamond -->
+  <path d="M 960 52 L 970 60 L 960 68 L 950 60 Z" fill="#c9a875" stroke="none" />
+  <path d="M 960 46 L 976 60 L 960 74 L 944 60 Z" opacity="0.4" />
+  
+  <line x1="980" y1="60" x2="1200" y2="60" />
+  <line x1="1240" y1="60" x2="1560" y2="60" opacity="0.65" />
+  <line x1="1600" y1="60" x2="1800" y2="60" />
+  
+  <!-- Top tick marks -->
+  <line x1="340" y1="55" x2="340" y2="65" opacity="0.5" />
+  <line x1="700" y1="55" x2="700" y2="65" opacity="0.5" />
+  <line x1="1220" y1="55" x2="1220" y2="65" opacity="0.5" />
+  <line x1="1580" y1="55" x2="1580" y2="65" opacity="0.5" />
+  
+  <!-- Small dots flanking center diamond -->
+  <circle cx="900" cy="60" r="2" fill="#c9a875" stroke="none" opacity="0.7" />
+  <circle cx="1020" cy="60" r="2" fill="#c9a875" stroke="none" opacity="0.7" />
+
+  <!-- ============ LEFT EDGE — broken segments ============ -->
+  <line x1="60" y1="120" x2="60" y2="320" />
+  <line x1="60" y1="360" x2="60" y2="540" opacity="0.65" />
+  <line x1="60" y1="580" x2="60" y2="780" />
+  <line x1="60" y1="820" x2="60" y2="1020" opacity="0.65" />
+  
+  <line x1="55" y1="340" x2="65" y2="340" opacity="0.5" />
+  <line x1="55" y1="560" x2="65" y2="560" opacity="0.5" />
+  <line x1="55" y1="800" x2="65" y2="800" opacity="0.5" />
+  
+  <circle cx="60" cy="450" r="2" fill="#c9a875" stroke="none" opacity="0.7" />
+  <circle cx="60" cy="680" r="2" fill="#c9a875" stroke="none" opacity="0.7" />
+
+  <!-- ============ RIGHT EDGE — broken segments ============ -->
+  <line x1="1860" y1="120" x2="1860" y2="320" opacity="0.65" />
+  <line x1="1860" y1="360" x2="1860" y2="540" />
+  <line x1="1860" y1="580" x2="1860" y2="780" opacity="0.65" />
+  <line x1="1860" y1="820" x2="1860" y2="1020" />
+  
+  <line x1="1855" y1="340" x2="1865" y2="340" opacity="0.5" />
+  <line x1="1855" y1="560" x2="1865" y2="560" opacity="0.5" />
+  <line x1="1855" y1="800" x2="1865" y2="800" opacity="0.5" />
+  
+  <circle cx="1860" cy="450" r="2" fill="#c9a875" stroke="none" opacity="0.7" />
+  <circle cx="1860" cy="680" r="2" fill="#c9a875" stroke="none" opacity="0.7" />
+
+  <!-- ============ BOTTOM EDGE — clean single line ============ -->
+  <line x1="60" y1="1020" x2="1860" y2="1020" stroke-width="1.2" />
+
+  <!-- ============ TOP-LEFT CORNER ORNAMENT ============ -->
+  <!-- Solid corner diamond -->
+  <path d="M 60 60 L 75 45 L 90 60 L 75 75 Z" fill="#c9a875" stroke="none" />
+  <!-- Outer halo -->
+  <path d="M 50 60 L 75 35 L 100 60 L 75 85 Z" opacity="0.35" />
+  <!-- Inward connecting lines -->
+  <line x1="90" y1="60" x2="120" y2="60" opacity="0.6" />
+  <line x1="60" y1="90" x2="60" y2="120" opacity="0.6" />
+  <!-- Small accent dots inward -->
+  <circle cx="105" cy="60" r="1.8" fill="#c9a875" stroke="none" />
+  <circle cx="60" cy="105" r="1.8" fill="#c9a875" stroke="none" />
+
+  <!-- ============ TOP-RIGHT CORNER ORNAMENT ============ -->
+  <path d="M 1860 60 L 1845 45 L 1830 60 L 1845 75 Z" fill="#c9a875" stroke="none" />
+  <path d="M 1870 60 L 1845 35 L 1820 60 L 1845 85 Z" opacity="0.35" />
+  <line x1="1830" y1="60" x2="1800" y2="60" opacity="0.6" />
+  <line x1="1860" y1="90" x2="1860" y2="120" opacity="0.6" />
+  <circle cx="1815" cy="60" r="1.8" fill="#c9a875" stroke="none" />
+  <circle cx="1860" cy="105" r="1.8" fill="#c9a875" stroke="none" />
+
+  <!-- ============ BOTTOM CORNERS — minimal, clean ============ -->
+  <!-- Just small connecting marks where edges meet -->
+  <circle cx="60" cy="1020" r="2.5" fill="#c9a875" stroke="none" />
+  <circle cx="1860" cy="1020" r="2.5" fill="#c9a875" stroke="none" />
+
+</svg>
