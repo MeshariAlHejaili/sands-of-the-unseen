@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 60" fill="none" stroke="#c9a875" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+
+  <!-- ===== LEFT SIDE LINE (tapered, with accent dots) ===== -->
+  <line x1="20" y1="30" x2="240" y2="30" />
+  
+  <!-- Left small dot -->
+  <circle cx="250" cy="30" r="2" fill="#c9a875" stroke="none" />
+  
+  <!-- Short connector line -->
+  <line x1="260" y1="30" x2="275" y2="30" opacity="0.7" />
+
+  <!-- ===== CENTER DIAMOND ORNAMENT ===== -->
+  
+  <!-- Outer diamond frame -->
+  <path d="M 300 12 L 322 30 L 300 48 L 278 30 Z" stroke-width="1.3" />
+  
+  <!-- Inner diamond (smaller, slightly rotated feel via offset) -->
+  <path d="M 300 20 L 314 30 L 300 40 L 286 30 Z" opacity="0.7" />
+  
+  <!-- Center small dot -->
+  <circle cx="300" cy="30" r="2.2" fill="#c9a875" stroke="none" />
+  
+  <!-- Tiny accent marks at diamond points -->
+  <circle cx="300" cy="12" r="1" fill="#c9a875" stroke="none" opacity="0.8" />
+  <circle cx="300" cy="48" r="1" fill="#c9a875" stroke="none" opacity="0.8" />
+
+  <!-- ===== RIGHT SIDE LINE (mirror of left) ===== -->
+  
+  <!-- Short connector line -->
+  <line x1="325" y1="30" x2="340" y2="30" opacity="0.7" />
+  
+  <!-- Right small dot -->
+  <circle cx="350" cy="30" r="2" fill="#c9a875" stroke="none" />
+  
+  <!-- Long line to right edge -->
+  <line x1="360" y1="30" x2="580" y2="30" />
+
+  <!-- ===== END CAPS — small diamonds at far ends ===== -->
+  <path d="M 12 30 L 20 24 L 28 30 L 20 36 Z" fill="#c9a875" stroke="none" opacity="0.5" />
+  <path d="M 572 30 L 580 24 L 588 30 L 580 36 Z" fill="#c9a875" stroke="none" opacity="0.5" />
+
+</svg>

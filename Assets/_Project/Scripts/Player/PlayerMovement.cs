@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using UnityEngine;
 
@@ -7,7 +8,22 @@ using UnityEngine;
 [RequireComponent(typeof(PlayerStats))]
 [RequireComponent(typeof(PlayerCollisionMotor))]
 public class PlayerMovement : MonoBehaviour
-{  
+{
+    /// <summary>
+    /// Fired every frame with the current world-space movement input direction (not normalized; raw axis values).
+    /// </summary>
+    public event Action<Vector3> MoveInputChanged;
+
+    /// <summary>
+    /// Fired when a dash starts.
+    /// </summary>
+    public event Action DashStarted;
+
+    /// <summary>
+    /// Fired when a dash ends, whether by completing or being interrupted.
+    /// </summary>
+    public event Action DashEnded;
+
     [Header("Audio")]
     [Tooltip("Audio clip played once when the player starts a dash.")]
     [SerializeField] private AudioClip dashSound;
@@ -48,7 +64,11 @@ public class PlayerMovement : MonoBehaviour
             dashCoroutine = null;
         }
 
-        isDashing = false;
+        if (isDashing)
+        {
+            isDashing = false;
+            DashEnded?.Invoke();
+        }
     }
 
     private void Update()
@@ -69,6 +89,8 @@ public class PlayerMovement : MonoBehaviour
         float vertical = Input.GetAxisRaw("Vertical");
 
         Vector3 moveDirection = new Vector3(horizontal, 0f, vertical);
+        MoveInputChanged?.Invoke(moveDirection);
+
         if (moveDirection.sqrMagnitude <= 0.01f)
         {
             return;
@@ -102,39 +124,61 @@ public class PlayerMovement : MonoBehaviour
     private IEnumerator DashRoutine(Vector3 direction)
     {
         isDashing = true;
-        float remainingDistance = stats.DashDistance;
-        float dashDuration = Mathf.Max(0.01f, stats.DashDuration);
-        float dashSpeed = remainingDistance / dashDuration;
+        DashStarted?.Invoke();
 
         if (dashSound != null)
         {
             audioSource.PlayOneShot(dashSound, volume);
         }
 
-        while (remainingDistance > 0f)
+        try
         {
-            float stepDistance = Mathf.Min(remainingDistance, dashSpeed * Time.unscaledDeltaTime);
-            if (stepDistance <= Mathf.Epsilon)
+            float remainingDistance = stats.DashDistance;
+            float dashDuration = Mathf.Max(0.01f, stats.DashDuration);
+            float dashSpeed = remainingDistance / dashDuration;
+            float elapsed = 0f;
+
+            while (remainingDistance > 0f && elapsed < dashDuration)
             {
+                float dt = Time.deltaTime;
+                float stepDistance = Mathf.Min(remainingDistance, dashSpeed * dt);
+
+                if (stepDistance <= Mathf.Epsilon)
+                {
+                    elapsed += dt;
+                    yield return null;
+                    continue;
+                }
+
+                Vector3 requestedDisplacement = direction * stepDistance;
+                Vector3 movedDisplacement = collisionMotor.Move(requestedDisplacement, false, out RaycastHit blockingHit);
+
+                float movedMag = movedDisplacement.magnitude;
+
+                // Guard against NaN / Infinity from the motor
+                if (float.IsNaN(movedMag) || float.IsInfinity(movedMag))
+                {
+                    break;
+                }
+
+                remainingDistance -= movedMag;
+                elapsed += dt;
+
+                // Only break when truly blocked (essentially zero movement)
+                if (blockingHit.collider != null && movedMag < 1e-5f)
+                {
+                    break;
+                }
+
                 yield return null;
-                continue;
             }
-
-            Vector3 requestedDisplacement = direction * stepDistance;
-            Vector3 movedDisplacement = collisionMotor.Move(requestedDisplacement, false, out RaycastHit blockingHit);
-
-            remainingDistance -= movedDisplacement.magnitude;
-
-            if (blockingHit.collider != null || movedDisplacement.sqrMagnitude < requestedDisplacement.sqrMagnitude - 0.0001f)
-            {
-                break;
-            }
-
-            yield return null; 
         }
-
-        isDashing = false;
-        dashCoroutine = null;
+        finally
+        {
+            isDashing = false;
+            dashCoroutine = null;
+            DashEnded?.Invoke();
+        }
     }
 
     private bool TryUseSprintStamina()
