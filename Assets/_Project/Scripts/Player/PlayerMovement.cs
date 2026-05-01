@@ -23,7 +23,7 @@ public class PlayerMovement : MonoBehaviour
     /// Fired when a dash ends, whether by completing or being interrupted.
     /// </summary>
     public event Action DashEnded;
-    
+
     [Header("Audio")]
     [Tooltip("Audio clip played once when the player starts a dash.")]
     [SerializeField] private AudioClip dashSound;
@@ -126,40 +126,59 @@ public class PlayerMovement : MonoBehaviour
         isDashing = true;
         DashStarted?.Invoke();
 
-        float remainingDistance = stats.DashDistance;
-        float dashDuration = Mathf.Max(0.01f, stats.DashDuration);
-        float dashSpeed = remainingDistance / dashDuration;
-
         if (dashSound != null)
         {
             audioSource.PlayOneShot(dashSound, volume);
         }
 
-        while (remainingDistance > 0f)
+        try
         {
-            float stepDistance = Mathf.Min(remainingDistance, dashSpeed * Time.unscaledDeltaTime);
-            if (stepDistance <= Mathf.Epsilon)
+            float remainingDistance = stats.DashDistance;
+            float dashDuration = Mathf.Max(0.01f, stats.DashDuration);
+            float dashSpeed = remainingDistance / dashDuration;
+            float elapsed = 0f;
+
+            while (remainingDistance > 0f && elapsed < dashDuration)
             {
+                float dt = Time.deltaTime;
+                float stepDistance = Mathf.Min(remainingDistance, dashSpeed * dt);
+
+                if (stepDistance <= Mathf.Epsilon)
+                {
+                    elapsed += dt;
+                    yield return null;
+                    continue;
+                }
+
+                Vector3 requestedDisplacement = direction * stepDistance;
+                Vector3 movedDisplacement = collisionMotor.Move(requestedDisplacement, false, out RaycastHit blockingHit);
+
+                float movedMag = movedDisplacement.magnitude;
+
+                // Guard against NaN / Infinity from the motor
+                if (float.IsNaN(movedMag) || float.IsInfinity(movedMag))
+                {
+                    break;
+                }
+
+                remainingDistance -= movedMag;
+                elapsed += dt;
+
+                // Only break when truly blocked (essentially zero movement)
+                if (blockingHit.collider != null && movedMag < 1e-5f)
+                {
+                    break;
+                }
+
                 yield return null;
-                continue;
             }
-
-            Vector3 requestedDisplacement = direction * stepDistance;
-            Vector3 movedDisplacement = collisionMotor.Move(requestedDisplacement, false, out RaycastHit blockingHit);
-
-            remainingDistance -= movedDisplacement.magnitude;
-
-            if (blockingHit.collider != null || movedDisplacement.sqrMagnitude < requestedDisplacement.sqrMagnitude - 0.0001f)
-            {
-                break;
-            }
-
-            yield return null;
         }
-
-        isDashing = false;
-        dashCoroutine = null;
-        DashEnded?.Invoke();
+        finally
+        {
+            isDashing = false;
+            dashCoroutine = null;
+            DashEnded?.Invoke();
+        }
     }
 
     private bool TryUseSprintStamina()
