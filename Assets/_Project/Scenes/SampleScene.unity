@@ -1461,6 +1461,8 @@ MonoBehaviour:
   dashDuration: 0.2
   bulletDamage: 10
   fireRate: 10
+  bulletsPerShot: 1
+  bulletSpreadAngle: 0
 --- !u!114 &484238543
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1551,7 +1553,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 54347e1761ae84400acc2bda6862b1a9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerShootingVFXObserver
-  firePoint: {fileID: 1132883091}
   muzzleFlashPrefab: {fileID: 3707525949132932336, guid: dcf261382db9e43b78b9753e6cc6db4f, type: 3}
   sparkPrefab: {fileID: 7099101355085580807, guid: def83a1a589af4b8aa58c0da7044402d, type: 3}
   smokePrefab: {fileID: 3186546234505650837, guid: 3edb24db9cb7949d0a8e24966746eec5, type: 3}
@@ -23377,7 +23378,7 @@ Transform:
   m_GameObject: {fileID: 1148711987}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.000019997358, y: 0.00001, z: -21.042}
+  m_LocalPosition: {x: 0, y: 0, z: -21.042}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -29147,7 +29148,7 @@ Transform:
   m_GameObject: {fileID: 1319988705}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.000019997358, y: 0.00001, z: 18.448}
+  m_LocalPosition: {x: 0, y: 0, z: 18.448}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -29315,7 +29316,7 @@ Transform:
   m_GameObject: {fileID: 1378269496}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 20.91123, y: 0.00001, z: 0}
+  m_LocalPosition: {x: 20.91123, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -34974,7 +34975,7 @@ Transform:
   m_GameObject: {fileID: 1667344114}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -20.54877, y: 0.00001, z: 0}
+  m_LocalPosition: {x: -20.54877, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -35640,6 +35641,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyWaveSpawner
   enemyPrefab: {fileID: 141208475854455266, guid: 37321f962804d7c4fb9b416fc2940b94, type: 3}
+  additionalEnemyPrefabs: []
   player: {fileID: 484238538}
   spawnPoints:
   - {fileID: 1319988706}
@@ -35665,7 +35667,7 @@ Transform:
   m_GameObject: {fileID: 1872542093}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.000019997358, y: 0.00001, z: -0.00001001358}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 2, y: 2, z: 2}
   m_ConstrainProportionsScale: 1
   m_Children: []

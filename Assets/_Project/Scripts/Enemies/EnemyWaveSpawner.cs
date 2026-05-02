@@ -2,11 +2,29 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+// LOCKED FOUNDATION FILE: after Issue #0, only lead may edit. Open a needs-lead issue for changes.
 public class EnemyWaveSpawner : MonoBehaviour
 {
+    [System.Serializable]
+    private sealed class EnemySpawnEntry
+    {
+        [Tooltip("Additional enemy prefab that can appear in regular waves.")]
+        [SerializeField] private EnemyBoxAgent prefab;
+
+        [Tooltip("Relative spawn weight from 0 to 1. A value of 0 keeps this entry disabled.")]
+        [Range(0f, 1f)]
+        [SerializeField] private float spawnWeight;
+
+        public EnemyBoxAgent Prefab => prefab;
+        public float SpawnWeight => spawnWeight;
+    }
+
     [Header("References")]
-    [Tooltip("Enemy prefab spawned and pooled by this wave spawner.")]
+    [Tooltip("Default melee enemy prefab spawned when no additional enemy entry is selected.")]
     [SerializeField] private EnemyBoxAgent enemyPrefab;
+
+    [Tooltip("Additional enemy prefabs and spawn weights used for future enemy types such as ranged enemies.")]
+    [SerializeField] private EnemySpawnEntry[] additionalEnemyPrefabs;
 
     [Tooltip("Player transform used as the enemy target; if empty, it is resolved by the Player tag.")]
     [SerializeField] private Transform player;
@@ -32,7 +50,6 @@ public class EnemyWaveSpawner : MonoBehaviour
     [Min(0f)]
     [SerializeField] private float delayBetweenWaves = 3f;
 
-    [Space]
     [Header("Power Scaling")]
     [Tooltip("Additional enemy health multiplier added per wave, expressed as a decimal fraction.")]
     [Min(0f)]
@@ -61,7 +78,9 @@ public class EnemyWaveSpawner : MonoBehaviour
     [SerializeField] private int initialCurrencyOrbPoolSize = 12;
 
     private readonly HashSet<EnemyBoxAgent> activeEnemies = new HashSet<EnemyBoxAgent>();
-    private readonly Queue<EnemyBoxAgent> pooledEnemies = new Queue<EnemyBoxAgent>();
+    private readonly Dictionary<EnemyBoxAgent, Queue<EnemyBoxAgent>> pooledEnemiesByPrefab = new Dictionary<EnemyBoxAgent, Queue<EnemyBoxAgent>>();
+    private readonly Dictionary<EnemyBoxAgent, EnemyBoxAgent> prefabByEnemy = new Dictionary<EnemyBoxAgent, EnemyBoxAgent>();
+    private readonly List<EnemyBoxAgent> clearBuffer = new List<EnemyBoxAgent>();
     private readonly Queue<CurrencyOrbPickup> pooledCurrencyOrbs = new Queue<CurrencyOrbPickup>();
     private readonly HashSet<CurrencyOrbPickup> activeCurrencyOrbs = new HashSet<CurrencyOrbPickup>();
 
@@ -69,7 +88,9 @@ public class EnemyWaveSpawner : MonoBehaviour
     private PlayerHealth subscribedHealth;
     private CurrencyOrbPickup currencyOrbPrefab;
     private bool playerDead;
+    private bool isSpawningStopped;
     private int currentWave;
+    private Coroutine waveRoutine;
 
     private void Start()
     {
@@ -83,7 +104,7 @@ public class EnemyWaveSpawner : MonoBehaviour
         }
 
         PrewarmPool();
-        StartCoroutine(WaveLoop());
+        waveRoutine = StartCoroutine(WaveLoop());
     }
 
     private void OnDestroy()
@@ -97,13 +118,86 @@ public class EnemyWaveSpawner : MonoBehaviour
         playerDead = true;
     }
 
+    public void StopSpawning()
+    {
+        isSpawningStopped = true;
+
+        if (waveRoutine != null)
+        {
+            StopCoroutine(waveRoutine);
+            waveRoutine = null;
+        }
+    }
+
+    public void ClearActiveEnemies()
+    {
+        clearBuffer.Clear();
+        clearBuffer.AddRange(activeEnemies);
+
+        for (int i = 0; i < clearBuffer.Count; i++)
+        {
+            EnemyBoxAgent enemy = clearBuffer[i];
+            if (enemy == null)
+            {
+                continue;
+            }
+
+            activeEnemies.Remove(enemy);
+            enemy.ReturnToPool();
+            EnqueueEnemy(enemy);
+        }
+
+        clearBuffer.Clear();
+    }
+
+    public void SpawnChildWave(int count, Vector3 center, float radius)
+    {
+        if (count <= 0)
+        {
+            return;
+        }
+
+        ResolvePlayer();
+        if (player == null || playerHealth == null || playerDead)
+        {
+            return;
+        }
+
+        float healthMultiplier = GetWaveMultiplier(healthGrowthPerWave);
+        float damageMultiplier = GetWaveMultiplier(damageGrowthPerWave);
+        float speedMultiplier = GetWaveMultiplier(speedGrowthPerWave);
+        int bonusCurrency = Mathf.Max(0, (currentWave - 1) * currencyGrowthEveryWave);
+
+        EnsurePoolSize(enemyPrefab, count);
+
+        for (int i = 0; i < count; i++)
+        {
+            EnemyBoxAgent enemy = GetEnemyFromPool(enemyPrefab);
+            if (enemy == null)
+            {
+                continue;
+            }
+
+            activeEnemies.Add(enemy);
+            enemy.Spawn(
+                player,
+                playerHealth,
+                GetChildSpawnPosition(center, radius),
+                this,
+                healthMultiplier,
+                damageMultiplier,
+                speedMultiplier,
+                bonusCurrency);
+        }
+    }
+
     public void ReleaseEnemy(EnemyBoxAgent enemy)
     {
         if (enemy == null || !activeEnemies.Remove(enemy))
             return;
 
         enemy.ReturnToPool();
-        pooledEnemies.Enqueue(enemy);
+        EnqueueEnemy(enemy);
     }
 
     public void SpawnCurrencyOrb(CurrencyOrbPickup prefab, Vector3 position, int value)
@@ -126,7 +220,7 @@ public class EnemyWaveSpawner : MonoBehaviour
         if (initialDelay > 0f)
             yield return new WaitForSeconds(initialDelay);
 
-        while (true)
+        while (!isSpawningStopped)
         {
             ResolvePlayer();
             if (player == null || playerHealth == null || playerDead)
@@ -138,7 +232,7 @@ public class EnemyWaveSpawner : MonoBehaviour
             currentWave++;
             SpawnWave(GetEnemyCountForWave(currentWave));
 
-            while (activeEnemies.Count > 0)
+            while (!isSpawningStopped && activeEnemies.Count > 0)
                 yield return null;
 
             if (delayBetweenWaves > 0f)
@@ -149,12 +243,28 @@ public class EnemyWaveSpawner : MonoBehaviour
     private void PrewarmPool()
     {
         int requiredCount = Mathf.Max(initialPoolSize, startingEnemiesPerWave);
-        EnsurePoolSize(requiredCount);
+        EnsurePoolSize(enemyPrefab, requiredCount);
+
+        if (additionalEnemyPrefabs == null)
+        {
+            return;
+        }
+
+        for (int i = 0; i < additionalEnemyPrefabs.Length; i++)
+        {
+            if (!IsValidSpawnEntry(additionalEnemyPrefabs[i]))
+            {
+                continue;
+            }
+
+            int requiredAdditionalCount = Mathf.CeilToInt(requiredCount * additionalEnemyPrefabs[i].SpawnWeight);
+            EnsurePoolSize(additionalEnemyPrefabs[i].Prefab, requiredAdditionalCount);
+        }
     }
 
     private void SpawnWave(int enemyCount)
     {
-        EnsurePoolSize(enemyCount);
+        EnsurePoolSize(enemyPrefab, enemyCount);
 
         float healthMultiplier = GetWaveMultiplier(healthGrowthPerWave);
         float damageMultiplier = GetWaveMultiplier(damageGrowthPerWave);
@@ -163,7 +273,8 @@ public class EnemyWaveSpawner : MonoBehaviour
 
         for (int i = 0; i < enemyCount; i++)
         {
-            EnemyBoxAgent enemy = GetEnemyFromPool();
+            EnemyBoxAgent selectedPrefab = GetPrefabForRegularSpawn();
+            EnemyBoxAgent enemy = GetEnemyFromPool(selectedPrefab);
             if (enemy == null) continue;
 
             activeEnemies.Add(enemy);
@@ -179,23 +290,37 @@ public class EnemyWaveSpawner : MonoBehaviour
         }
     }
 
-    private void EnsurePoolSize(int requiredAvailable)
+    private void EnsurePoolSize(EnemyBoxAgent prefab, int requiredAvailable)
     {
-        int missingCount = requiredAvailable - pooledEnemies.Count;
+        if (prefab == null)
+        {
+            return;
+        }
+
+        Queue<EnemyBoxAgent> pool = GetPool(prefab);
+        int missingCount = requiredAvailable - pool.Count;
         for (int i = 0; i < missingCount; i++)
         {
-            EnemyBoxAgent enemy = Instantiate(enemyPrefab, transform.position, Quaternion.identity, transform);
+            EnemyBoxAgent enemy = Instantiate(prefab, transform.position, Quaternion.identity, transform);
+            prefabByEnemy[enemy] = prefab;
             enemy.ReturnToPool();
-            pooledEnemies.Enqueue(enemy);
+            pool.Enqueue(enemy);
         }
     }
 
-    private EnemyBoxAgent GetEnemyFromPool()
+    private EnemyBoxAgent GetEnemyFromPool(EnemyBoxAgent prefab)
     {
-        if (pooledEnemies.Count == 0)
-            EnsurePoolSize(1);
+        if (prefab == null)
+        {
+            return null;
+        }
 
-        return pooledEnemies.Count > 0 ? pooledEnemies.Dequeue() : null;
+        Queue<EnemyBoxAgent> pool = GetPool(prefab);
+
+        if (pool.Count == 0)
+            EnsurePoolSize(prefab, 1);
+
+        return pool.Count > 0 ? pool.Dequeue() : null;
     }
 
     private void CacheCurrencyOrbPrefab(CurrencyOrbPickup prefab)
@@ -245,6 +370,84 @@ public class EnemyWaveSpawner : MonoBehaviour
         }
 
         return transform.position;
+    }
+
+    private Vector3 GetChildSpawnPosition(Vector3 center, float radius)
+    {
+        if (radius <= 0f)
+        {
+            return center;
+        }
+
+        Vector2 offset = Random.insideUnitCircle * radius;
+        return center + new Vector3(offset.x, 0f, offset.y);
+    }
+
+    private EnemyBoxAgent GetPrefabForRegularSpawn()
+    {
+        if (additionalEnemyPrefabs == null || additionalEnemyPrefabs.Length == 0)
+        {
+            return enemyPrefab;
+        }
+
+        float totalWeight = 1f;
+        for (int i = 0; i < additionalEnemyPrefabs.Length; i++)
+        {
+            if (IsValidSpawnEntry(additionalEnemyPrefabs[i]))
+            {
+                totalWeight += additionalEnemyPrefabs[i].SpawnWeight;
+            }
+        }
+
+        float roll = Random.value * totalWeight;
+        if (roll <= 1f)
+        {
+            return enemyPrefab;
+        }
+
+        roll -= 1f;
+        for (int i = 0; i < additionalEnemyPrefabs.Length; i++)
+        {
+            if (!IsValidSpawnEntry(additionalEnemyPrefabs[i]))
+            {
+                continue;
+            }
+
+            if (roll <= additionalEnemyPrefabs[i].SpawnWeight)
+            {
+                return additionalEnemyPrefabs[i].Prefab;
+            }
+
+            roll -= additionalEnemyPrefabs[i].SpawnWeight;
+        }
+
+        return enemyPrefab;
+    }
+
+    private void EnqueueEnemy(EnemyBoxAgent enemy)
+    {
+        if (!prefabByEnemy.TryGetValue(enemy, out EnemyBoxAgent prefab))
+        {
+            prefab = enemyPrefab;
+        }
+
+        GetPool(prefab).Enqueue(enemy);
+    }
+
+    private Queue<EnemyBoxAgent> GetPool(EnemyBoxAgent prefab)
+    {
+        if (!pooledEnemiesByPrefab.TryGetValue(prefab, out Queue<EnemyBoxAgent> pool))
+        {
+            pool = new Queue<EnemyBoxAgent>();
+            pooledEnemiesByPrefab[prefab] = pool;
+        }
+
+        return pool;
+    }
+
+    private bool IsValidSpawnEntry(EnemySpawnEntry entry)
+    {
+        return entry != null && entry.Prefab != null && entry.SpawnWeight > 0f;
     }
 
     private int GetEnemyCountForWave(int waveNumber)
