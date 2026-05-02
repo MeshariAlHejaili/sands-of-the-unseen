@@ -31,7 +31,7 @@ public class BulletDamageDealer : MonoBehaviour
     {
         Vector3 currentPosition = transform.position;
 
-        if (TryDamageOverlappingEnemy(previousPosition))
+        if (TryDamageOverlappingTarget(previousPosition))
             return;
 
         Vector3 travel = currentPosition - previousPosition;
@@ -45,53 +45,67 @@ public class BulletDamageDealer : MonoBehaviour
 
         Vector3 direction = travel / distance;
 
-        if (TryDamageEnemyAlongPath(previousPosition, direction, distance))
+        if (TryDamageTargetAlongPath(previousPosition, direction, distance))
             return;
 
         previousPosition = currentPosition;
     }
 
-    private bool TryDamageOverlappingEnemy(Vector3 position)
+    private bool TryDamageOverlappingTarget(Vector3 position)
     {
-        int hitCount = Physics.OverlapSphereNonAlloc(position, hitRadius, overlapResults, enemyLayers, QueryTriggerInteraction.Ignore);
+        int hitCount = Physics.OverlapSphereNonAlloc(position, hitRadius, overlapResults, enemyLayers, QueryTriggerInteraction.Collide);
 
         for (int i = 0; i < hitCount; i++)
         {
-            EnemyBoxAgent enemy = overlapResults[i].GetComponentInParent<EnemyBoxAgent>();
-            if (TryDamageEnemy(enemy))
+            IDamageable damageable = GetDamageable(overlapResults[i]);
+            if (TryDamageTarget(damageable))
+            {
                 return true;
+            }
         }
 
         return false;
     }
 
-    private bool TryDamageEnemyAlongPath(Vector3 origin, Vector3 direction, float distance)
+    private bool TryDamageTargetAlongPath(Vector3 origin, Vector3 direction, float distance)
     {
-        int hitCount = Physics.SphereCastNonAlloc(origin, hitRadius, direction, hitResults, distance, enemyLayers, QueryTriggerInteraction.Ignore);
-        EnemyBoxAgent nearestEnemy = null;
+        int hitCount = Physics.SphereCastNonAlloc(origin, hitRadius, direction, hitResults, distance, enemyLayers, QueryTriggerInteraction.Collide);
+        IDamageable nearestDamageable = null;
         float nearestDistance = float.PositiveInfinity;
 
         for (int i = 0; i < hitCount; i++)
         {
-            EnemyBoxAgent enemy = hitResults[i].collider.GetComponentInParent<EnemyBoxAgent>();
-            if (enemy != null && enemy.IsAlive && hitResults[i].distance < nearestDistance)
+            IDamageable damageable = GetDamageable(hitResults[i].collider);
+            if (damageable != null && damageable.IsAlive && hitResults[i].distance < nearestDistance)
             {
-                nearestEnemy = enemy;
+                nearestDamageable = damageable;
                 nearestDistance = hitResults[i].distance;
             }
         }
 
-        return TryDamageEnemy(nearestEnemy);
+        return TryDamageTarget(nearestDamageable);
     }
 
-    private bool TryDamageEnemy(EnemyBoxAgent enemy)
+    private bool TryDamageTarget(IDamageable damageable)
     {
-        if (enemy == null || !enemy.IsAlive)
+        if (damageable == null || !damageable.IsAlive)
+        {
             return false;
+        }
 
         float damage = bullet != null ? bullet.Damage : 0f;
-        enemy.TakeDamage(damage);
+        damageable.TakeDamage(damage);
         bullet?.ReturnToPool();
         return true;
+    }
+
+    private IDamageable GetDamageable(Collider hitCollider)
+    {
+        if (hitCollider == null)
+        {
+            return null;
+        }
+
+        return hitCollider.GetComponentInParent<IDamageable>();
     }
 }

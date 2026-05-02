@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-public class EnemyHealth : MonoBehaviour
+public class EnemyHealth : MonoBehaviour, IDamageable
 {
     private float currentHealth;
     private float maxHealth;
@@ -9,6 +9,7 @@ public class EnemyHealth : MonoBehaviour
     public float CurrentHealth => currentHealth;
     public float MaxHealth => maxHealth;
     public bool IsDead => currentHealth <= 0f;
+    public bool IsAlive => !IsDead;
 
     public event Action<float, float, float> Damaged; // amount, current, max
     public event Action Died;
