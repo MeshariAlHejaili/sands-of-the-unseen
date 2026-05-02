@@ -4,6 +4,8 @@ using UnityEngine;
 public class SurvivalTimer : MonoBehaviour
 {
     [Header("Timer")]
+    [Tooltip("Duration in seconds before the survival phase expires.")]
+    [Min(1f)]
     [SerializeField] private float survivalDurationSeconds = 300f;
 
     private float remainingTime;

@@ -24,21 +24,31 @@ public class EnergyTrailDashEffect : MonoBehaviour, IDashEffect
     [SerializeField] private Gradient trailColor = CreateDefaultTrailGradient();
 
     [Tooltip("Trail lifetime in seconds. Controls how long the tail persists after the dash ends.")]
+    [Min(0.01f)]
     [SerializeField] private float trailTime = 0.3f;
 
     [Tooltip("Trail width at the head (player end).")]
+    [Min(0f)]
     [SerializeField] private float trailStartWidth = 0.6f;
 
     [Tooltip("Trail width at the tail (oldest end). Smaller values give a tapered streak.")]
+    [Min(0f)]
     [SerializeField] private float trailEndWidth = 0.05f;
 
     [Header("Sparks (optional)")]
     [Tooltip("Looping particle system that emits sparks/embers during the dash. Leave null to skip.")]
     [SerializeField] private ParticleSystem sparkStream;
     
+    [Tooltip("One-shot particle system played when a dash begins.")]
     [SerializeField] private ParticleSystem dashStartBurst;
+
+    [Tooltip("Looping spark particle system played for the duration of the dash.")]
     [SerializeField] private ParticleSystem dashSparkStream;
+
+    [Tooltip("Looping smoke particle system played for the duration of the dash.")]
     [SerializeField] private ParticleSystem dashSmokeStream;
+
+    [Tooltip("Light enabled only while the dash trail is active.")]
     [SerializeField] private Light dashLight;
 
     private Transform owner;

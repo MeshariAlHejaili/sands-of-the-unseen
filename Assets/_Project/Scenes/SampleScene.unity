@@ -128,8 +128,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6144294}
-  - component: {fileID: 6144297}
-  - component: {fileID: 6144296}
   - component: {fileID: 6144295}
   m_Layer: 9
   m_Name: Wall_East
@@ -174,36 +172,6 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 90, y: 40, z: 1}
   m_Center: {x: 0, y: 15, z: 0}
---- !u!64 &6144296
-MeshCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6144293}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 0
-  serializedVersion: 5
-  m_Convex: 0
-  m_CookingOptions: 30
-  m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
---- !u!33 &6144297
-MeshFilter:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6144293}
-  m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!1 &81628201
 GameObject:
   m_ObjectHideFlags: 0
@@ -1613,7 +1581,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerCollisionMotor
   blockingLayers:
     serializedVersion: 2
-    m_Bits: 8
+    m_Bits: 520
   collisionSkinWidth: 0.03
 --- !u!114 &484238547
 MonoBehaviour:
@@ -12768,8 +12736,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 779839412}
-  - component: {fileID: 779839414}
-  - component: {fileID: 779839413}
   - component: {fileID: 779839415}
   m_Layer: 9
   m_Name: Wall_North
@@ -12793,36 +12759,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1971540940}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!64 &779839413
-MeshCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 779839411}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 0
-  serializedVersion: 5
-  m_Convex: 0
-  m_CookingOptions: 30
-  m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
---- !u!33 &779839414
-MeshFilter:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 779839411}
-  m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!65 &779839415
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -22979,8 +22915,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 986011636}
-  - component: {fileID: 986011639}
-  - component: {fileID: 986011638}
   - component: {fileID: 986011637}
   m_Layer: 9
   m_Name: Wall_South
@@ -23025,36 +22959,6 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 90, y: 40, z: 1}
   m_Center: {x: 0, y: 15, z: 0}
---- !u!64 &986011638
-MeshCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 986011635}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 0
-  serializedVersion: 5
-  m_Convex: 0
-  m_CookingOptions: 30
-  m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
---- !u!33 &986011639
-MeshFilter:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 986011635}
-  m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!1 &991821045
 GameObject:
   m_ObjectHideFlags: 0
@@ -23328,7 +23232,7 @@ MonoBehaviour:
   mainMenuScreen: {fileID: 515771126}
   hudScreen: {fileID: 1691673214}
   countdownScreen: {fileID: 0}
-  upgradeSelectionScreen: {fileID: 0}
+  upgradeSelectionScreen: {fileID: 1453714725}
   bossOverlayScreen: {fileID: 0}
   victoryScreen: {fileID: 731615429}
   defeatScreen: {fileID: 1516181939}
@@ -35986,8 +35890,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1769380405}
-  - component: {fileID: 1769380408}
-  - component: {fileID: 1769380407}
   - component: {fileID: 1769380406}
   m_Layer: 9
   m_Name: Wall_West
@@ -36032,36 +35934,6 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 90, y: 40, z: 1}
   m_Center: {x: 0, y: 15, z: 0}
---- !u!64 &1769380407
-MeshCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1769380404}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 0
-  serializedVersion: 5
-  m_Convex: 0
-  m_CookingOptions: 30
-  m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
---- !u!33 &1769380408
-MeshFilter:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1769380404}
-  m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!1 &1788022749
 GameObject:
   m_ObjectHideFlags: 0

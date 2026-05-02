@@ -4,7 +4,10 @@ using UnityEngine;
 public class SurvivalTimerUI : MonoBehaviour
 {
     [Header("References")]
+    [Tooltip("Survival timer whose remaining seconds are displayed.")]
     [SerializeField] private SurvivalTimer survivalTimer;
+
+    [Tooltip("Text component that displays the remaining time as MM:SS.")]
     [SerializeField] private TMP_Text timerText;
 
     private void Awake()

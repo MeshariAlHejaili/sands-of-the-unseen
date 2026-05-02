@@ -4,10 +4,15 @@ using UnityEngine;
 public class MenuMusicController : MonoBehaviour
 {
     [Header("References")]
+    [Tooltip("Session controller whose state determines whether menu music should play.")]
     [SerializeField] private GameSessionController sessionController;
 
     [Header("Music")]
+    [Tooltip("Audio clip looped while the session is on the main menu.")]
     [SerializeField] private AudioClip menuMusic;
+
+    [Tooltip("Menu music playback volume from 0 to 1.")]
+    [Range(0f, 1f)]
     [SerializeField] private float volume = 0.35f;
 
     private AudioSource audioSource;

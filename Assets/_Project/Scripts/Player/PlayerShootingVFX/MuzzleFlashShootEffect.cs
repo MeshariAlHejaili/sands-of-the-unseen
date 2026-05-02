@@ -3,10 +3,14 @@ using UnityEngine;
 public class MuzzleFlashShootEffect : MonoBehaviour, IShootEffect
 {
     [Header("Muzzle Flash")]
+    [Tooltip("Primary muzzle flash particle prefab spawned at the firing point.")]
     [SerializeField] private ParticleSystem muzzleFlashPrefab;
 
     [Header("Optional Extra Burst")]
+    [Tooltip("Optional smoke particle prefab spawned alongside the muzzle flash.")]
     [SerializeField] private ParticleSystem smokePrefab;
+
+    [Tooltip("Optional spark particle prefab spawned alongside the muzzle flash.")]
     [SerializeField] private ParticleSystem sparkPrefab;
 
     public void Initialize(Transform owner)

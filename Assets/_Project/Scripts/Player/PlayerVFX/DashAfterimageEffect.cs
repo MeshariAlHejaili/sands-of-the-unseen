@@ -5,12 +5,23 @@ using UnityEngine.Rendering;
 public class DashAfterimageEffect : MonoBehaviour, IDashEffect
 {
     [Header("References")]
+    [Tooltip("Player skinned mesh renderers baked into temporary afterimage ghosts during a dash.")]
     [SerializeField] private SkinnedMeshRenderer[] playerRenderers;
 
     [Header("Afterimage Settings")]
+    [Tooltip("Material applied to each temporary dash afterimage ghost.")]
     [SerializeField] private Material ghostMaterial;
+
+    [Tooltip("Delay in seconds between afterimage ghost spawns during a dash.")]
+    [Min(0.01f)]
     [SerializeField] private float spawnInterval = 0.04f;
+
+    [Tooltip("Lifetime in seconds before each afterimage ghost fades out completely.")]
+    [Min(0.01f)]
     [SerializeField] private float ghostLifetime = 0.25f;
+
+    [Tooltip("Maximum number of afterimage ghosts spawned for one dash.")]
+    [Min(0)]
     [SerializeField] private int maxGhosts = 5;
 
     private Transform playerTransform;
