@@ -5,15 +5,14 @@ public class BulletDamageDealer : MonoBehaviour
     private const int MaxHitResults = 16;
 
     [Header("Hit Detection")]
-    [Tooltip("Radius in world units used by the bullet sphere cast.")]
     [Range(0f, 1f)]
     [SerializeField] private float hitRadius = 0.12f;
 
-    [Tooltip("Physics layers that can be hit by this bullet.")]
     [SerializeField] private LayerMask enemyLayers = ~0;
 
     private Bullet bullet;
     private Vector3 previousPosition;
+
     private readonly RaycastHit[] hitResults = new RaycastHit[MaxHitResults];
     private readonly Collider[] overlapResults = new Collider[MaxHitResults];
 
@@ -31,7 +30,7 @@ public class BulletDamageDealer : MonoBehaviour
     {
         Vector3 currentPosition = transform.position;
 
-        if (TryDamageOverlappingEnemy(previousPosition))
+        if (TryDamageOverlappingTarget(previousPosition))
             return;
 
         Vector3 travel = currentPosition - previousPosition;
@@ -45,53 +44,107 @@ public class BulletDamageDealer : MonoBehaviour
 
         Vector3 direction = travel / distance;
 
-        if (TryDamageEnemyAlongPath(previousPosition, direction, distance))
+        if (TryDamageTargetAlongPath(previousPosition, direction, distance))
             return;
 
         previousPosition = currentPosition;
     }
 
-    private bool TryDamageOverlappingEnemy(Vector3 position)
+    private bool TryDamageOverlappingTarget(Vector3 position)
     {
-        int hitCount = Physics.OverlapSphereNonAlloc(position, hitRadius, overlapResults, enemyLayers, QueryTriggerInteraction.Ignore);
+        int hitCount = Physics.OverlapSphereNonAlloc(
+            position,
+            hitRadius,
+            overlapResults,
+            enemyLayers,
+            QueryTriggerInteraction.Ignore
+        );
 
         for (int i = 0; i < hitCount; i++)
         {
-            EnemyBoxAgent enemy = overlapResults[i].GetComponentInParent<EnemyBoxAgent>();
-            if (TryDamageEnemy(enemy))
+            if (TryDamageCollider(overlapResults[i]))
                 return true;
         }
 
         return false;
     }
 
-    private bool TryDamageEnemyAlongPath(Vector3 origin, Vector3 direction, float distance)
+    private bool TryDamageTargetAlongPath(Vector3 origin, Vector3 direction, float distance)
     {
-        int hitCount = Physics.SphereCastNonAlloc(origin, hitRadius, direction, hitResults, distance, enemyLayers, QueryTriggerInteraction.Ignore);
-        EnemyBoxAgent nearestEnemy = null;
+        int hitCount = Physics.SphereCastNonAlloc(
+            origin,
+            hitRadius,
+            direction,
+            hitResults,
+            distance,
+            enemyLayers,
+            QueryTriggerInteraction.Ignore
+        );
+
+        Collider nearestCollider = null;
         float nearestDistance = float.PositiveInfinity;
 
         for (int i = 0; i < hitCount; i++)
         {
-            EnemyBoxAgent enemy = hitResults[i].collider.GetComponentInParent<EnemyBoxAgent>();
-            if (enemy != null && enemy.IsAlive && hitResults[i].distance < nearestDistance)
+            if (hitResults[i].collider == null)
+                continue;
+
+            if (hitResults[i].distance < nearestDistance)
             {
-                nearestEnemy = enemy;
+                nearestCollider = hitResults[i].collider;
                 nearestDistance = hitResults[i].distance;
             }
         }
 
-        return TryDamageEnemy(nearestEnemy);
+        return TryDamageCollider(nearestCollider);
     }
 
-    private bool TryDamageEnemy(EnemyBoxAgent enemy)
+    private bool TryDamageCollider(Collider hitCollider)
     {
-        if (enemy == null || !enemy.IsAlive)
+        if (hitCollider == null)
             return false;
 
         float damage = bullet != null ? bullet.Damage : 0f;
-        enemy.TakeDamage(damage);
-        bullet?.ReturnToPool();
-        return true;
+
+        EnemyBoxAgent enemy = hitCollider.GetComponentInParent<EnemyBoxAgent>();
+        if (enemy != null && enemy.IsAlive)
+        {
+            enemy.TakeDamage(damage);
+            bullet?.ReturnToPool();
+            return true;
+        }
+
+        // Final boss — must be checked BEFORE the generic EnemyHealth path so the
+        // armor/punish-window pipeline runs. Also checked before mini-boss BossHitbox
+        // so a final-boss prefab that ALSO has a stray BossHitbox component routes
+        // through the right system.
+        FinalBossHitbox finalBossHitbox = hitCollider.GetComponentInParent<FinalBossHitbox>();
+        if (finalBossHitbox != null)
+        {
+            // Use the bullet's current world position as the hit point so the armor
+            // system can compute the correct angle.
+            finalBossHitbox.TakeDamage(damage, transform.position);
+            bullet?.ReturnToPool();
+            return true;
+        }
+
+        BossHitbox bossHitbox = hitCollider.GetComponentInParent<BossHitbox>();
+        if (bossHitbox != null)
+        {
+            bossHitbox.TakeDamage(damage);
+            bullet?.ReturnToPool();
+            return true;
+        }
+
+        EnemyHealth bossHealth = hitCollider.GetComponentInParent<EnemyHealth>();
+        if (bossHealth != null && !bossHealth.IsDead)
+        {
+            Debug.Log($"[Bullet] Direct boss hit for {damage} damage.");
+            bossHealth.TakeDamage(damage);
+            bullet?.ReturnToPool();
+            return true;
+        }
+
+        return false;
     }
 }
