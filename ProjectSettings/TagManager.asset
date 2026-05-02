@@ -3,7 +3,9 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 3
-  tags: []
+  tags:
+  - Boss
+  - Portal
   layers:
   - Default
   - TransparentFX
@@ -11,12 +13,12 @@ TagManager:
   - Enemy
   - Water
   - UI
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
+  - Player
+  - EnemyProjectile
+  - PlayerProjectile
+  - World
+  - Pickup
+  - Hitbox
   - 
   - 
   - 
