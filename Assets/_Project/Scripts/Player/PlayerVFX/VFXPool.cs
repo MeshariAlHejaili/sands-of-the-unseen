@@ -20,9 +20,11 @@ public class VFXPool : MonoBehaviour
     public static VFXPool Instance { get; private set; }
 
     [Tooltip("Default capacity per prefab pool. Tune up if a specific effect spawns in bursts.")]
+    [Min(0)]
     [SerializeField] private int defaultCapacity = 16;
 
     [Tooltip("Hard cap per prefab pool. Excess instances are destroyed instead of returned.")]
+    [Min(1)]
     [SerializeField] private int maxPoolSize = 64;
 
     private readonly Dictionary<ParticleSystem, ObjectPool<ParticleSystem>> pools =

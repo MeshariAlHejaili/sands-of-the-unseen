@@ -1,55 +1,62 @@
 using UnityEngine;
 
-[RequireComponent(typeof(PlayerStats))]
+[RequireComponent(typeof(PlayerShooting))]
 public class PlayerShootingVFXObserver : MonoBehaviour
 {
-    [Header("References")]
-    [SerializeField] private Transform firePoint;
-
     [Header("VFX")]
+    [Tooltip("Muzzle flash particle prefab played once when the player fires.")]
     [SerializeField] private ParticleSystem muzzleFlashPrefab;
+
+    [Tooltip("Spark particle prefab played once when the player fires.")]
     [SerializeField] private ParticleSystem sparkPrefab;
+
+    [Tooltip("Smoke particle prefab played once when the player fires.")]
     [SerializeField] private ParticleSystem smokePrefab;
 
-    private PlayerStats stats;
-    private float nextVFXTime;
+    private PlayerShooting playerShooting;
 
     private void Awake()
     {
-        stats = GetComponent<PlayerStats>();
+        playerShooting = GetComponent<PlayerShooting>();
     }
 
-    private void Update()
+    private void OnEnable()
     {
-        if (!Input.GetMouseButton(0)) return;
-        if (Time.time < nextVFXTime) return;
-        if (stats.FireRate <= 0f) return;
-
-        PlayShootVFX();
-
-        nextVFXTime = Time.time + 1f / stats.FireRate;
+        if (playerShooting != null)
+        {
+            playerShooting.ShotFired += PlayShootVFX;
+        }
     }
 
-    private void PlayShootVFX()
+    private void OnDisable()
     {
-        if (firePoint == null) return;
+        if (playerShooting != null)
+        {
+            playerShooting.ShotFired -= PlayShootVFX;
+        }
+    }
 
+    private void PlayShootVFX(Vector3 position, Quaternion rotation)
+    {
         if (VFXPool.Instance == null)
         {
             Debug.LogWarning("No VFXPool found in scene.", this);
             return;
         }
 
-        Vector3 position = firePoint.position;
-        Quaternion rotation = firePoint.rotation;
-
         if (muzzleFlashPrefab != null)
+        {
             VFXPool.Instance.Play(muzzleFlashPrefab, position, rotation);
+        }
 
         if (sparkPrefab != null)
+        {
             VFXPool.Instance.Play(sparkPrefab, position, rotation);
+        }
 
         if (smokePrefab != null)
+        {
             VFXPool.Instance.Play(smokePrefab, position, rotation);
+        }
     }
 }

@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 7040667958163981341}
   - component: {fileID: 7031127007418058466}
   - component: {fileID: -8698164666169460530}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Bullet
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -143,4 +143,4 @@ MonoBehaviour:
   hitRadius: 0.12
   enemyLayers:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 2056

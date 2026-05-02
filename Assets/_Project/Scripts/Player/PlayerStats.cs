@@ -3,6 +3,9 @@ using UnityEngine;
 
 public class PlayerStats : MonoBehaviour
 {
+    private const int MaxBulletsPerShot = 8;
+    private const float MaxBulletSpreadAngle = 45f;
+
     [Header("Movement Settings")]
     [Tooltip("Base walking movement speed in world units per second.")]
     [Min(0f)]
@@ -54,6 +57,14 @@ public class PlayerStats : MonoBehaviour
     [Min(0.01f)]
     [SerializeField] private float fireRate = 5f;
 
+    [Tooltip("Number of bullets fired with each shot.")]
+    [Range(1, MaxBulletsPerShot)]
+    [SerializeField] private int bulletsPerShot = 1;
+
+    [Tooltip("Total horizontal spread angle in degrees applied across bullets in one shot.")]
+    [Range(0f, MaxBulletSpreadAngle)]
+    [SerializeField] private float bulletSpreadAngle = 0f;
+
     private float currentStamina;
     private float timeAtLastStaminaUse;
 
@@ -68,17 +79,19 @@ public class PlayerStats : MonoBehaviour
     public float DashDuration => dashDuration;
     public float BulletDamage => bulletDamage;
     public float FireRate => fireRate;
+    public int BulletsPerShot => bulletsPerShot;
+    public float BulletSpreadAngle => bulletSpreadAngle;
     public float CurrentStamina => currentStamina;
 
     public event Action<float, float> StaminaChanged;
 
-    void Start()
+    private void Start()
     {
         currentStamina = maxStamina;
         StaminaChanged?.Invoke(currentStamina, maxStamina);
     }
 
-    void Update()
+    private void Update()
     {
         HandleStaminaRegeneration();
     }
@@ -125,5 +138,15 @@ public class PlayerStats : MonoBehaviour
     public void AddFireRate(float amount)
     {
         fireRate = Mathf.Max(0.01f, fireRate + amount);
+    }
+
+    public void AddBulletsPerShot(int amount)
+    {
+        bulletsPerShot = Mathf.Clamp(bulletsPerShot + amount, 1, MaxBulletsPerShot);
+    }
+
+    public void AddBulletSpreadAngle(float amount)
+    {
+        bulletSpreadAngle = Mathf.Clamp(bulletSpreadAngle + amount, 0f, MaxBulletSpreadAngle);
     }
 }

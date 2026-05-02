@@ -36,7 +36,7 @@ public class EnemyBoxAgent : MonoBehaviour
     [SerializeField] private Vector3 dropOffset = new Vector3(0f, 0.5f, 0f);
 
     private EnemyHealth enemyHealth;
-    private EnemyAI enemyAI;
+    private IEnemyBehaviour enemyBehaviour;
     private Collider[] cachedColliders;
     private Renderer[] cachedRenderers;
     private EnemyWaveSpawner ownerSpawner;
@@ -48,7 +48,7 @@ public class EnemyBoxAgent : MonoBehaviour
     private void Awake()
     {
         enemyHealth = GetComponent<EnemyHealth>();
-        enemyAI = GetComponent<EnemyAI>();
+        enemyBehaviour = GetEnemyBehaviour();
         cachedColliders = GetComponentsInChildren<Collider>(true);
         cachedRenderers = GetComponentsInChildren<Renderer>(true);
 
@@ -60,6 +60,9 @@ public class EnemyBoxAgent : MonoBehaviour
             enemyHealth.Died += OnEnemyDied;
         else
             Debug.LogWarning("EnemyBoxAgent: EnemyHealth component missing on this prefab.", this);
+
+        if (enemyBehaviour == null)
+            Debug.LogWarning("EnemyBoxAgent: IEnemyBehaviour component missing on this prefab.", this);
     }
 
     private void OnDestroy()
@@ -87,13 +90,14 @@ public class EnemyBoxAgent : MonoBehaviour
         currentCurrencyValue = Mathf.Max(1, currencyValue + bonusCurrency);
 
         enemyHealth.Init(maxHealth * Mathf.Max(0.1f, healthMultiplier));
-        enemyAI.Init(
+        EnemyStatsContext statsContext = new EnemyStatsContext(
             target,
             targetHealth,
             moveSpeed * Mathf.Max(0.1f, speedMultiplier),
             contactDamage * Mathf.Max(0.1f, damageMultiplier),
             contactRange,
             contactDamageCooldown);
+        enemyBehaviour?.Init(statsContext);
 
         spawnPosition.y += halfHeight;
         transform.position = spawnPosition;
@@ -105,7 +109,7 @@ public class EnemyBoxAgent : MonoBehaviour
 
     public void ReturnToPool()
     {
-        enemyAI?.ResetState();
+        enemyBehaviour?.ResetState();
         ownerSpawner = null;
         gameObject.SetActive(false);
     }
@@ -114,7 +118,7 @@ public class EnemyBoxAgent : MonoBehaviour
     {
         SpawnCurrencyOrb();
         SetVisualAndCollisionState(false);
-        enemyAI?.ResetState();
+        enemyBehaviour?.ResetState();
 
         if (ownerSpawner != null)
             ownerSpawner.ReleaseEnemy(this);
@@ -144,5 +148,20 @@ public class EnemyBoxAgent : MonoBehaviour
 
         for (int i = 0; i < cachedColliders.Length; i++)
             cachedColliders[i].enabled = isEnabled;
+    }
+
+    private IEnemyBehaviour GetEnemyBehaviour()
+    {
+        MonoBehaviour[] behaviours = GetComponents<MonoBehaviour>();
+
+        for (int i = 0; i < behaviours.Length; i++)
+        {
+            if (behaviours[i] is IEnemyBehaviour behaviour)
+            {
+                return behaviour;
+            }
+        }
+
+        return null;
     }
 }

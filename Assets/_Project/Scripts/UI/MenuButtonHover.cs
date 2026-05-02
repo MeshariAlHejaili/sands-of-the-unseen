@@ -4,38 +4,72 @@ using UnityEngine.EventSystems;
 using TMPro;
 using DG.Tweening;
 
-public class MenuButtonGameHover : MonoBehaviour, 
+public class MenuButtonHover : MonoBehaviour, 
     IPointerEnterHandler, IPointerExitHandler, 
     ISelectHandler, IDeselectHandler
 {
     [Header("Frame & Icon References")]
+    [Tooltip("Frame graphic tinted between idle and hover colors.")]
     [SerializeField] private Graphic frameImage;
+
+    [Tooltip("Icon graphic scaled when the button is hovered or selected.")]
     [SerializeField] private Graphic iconImage;
+
+    [Tooltip("Text label tinted between idle and hover colors.")]
     [SerializeField] private TMP_Text labelText;
-    
+
+    [Space]
     [Header("Glow Effect References")]
+    [Tooltip("Rect transform for the glow line that fades in on hover.")]
     [SerializeField] private RectTransform glowLine;
+
+    [Tooltip("Rect transform for the ember highlight that travels across the glow line.")]
     [SerializeField] private RectTransform ember;
+
+    [Tooltip("Inner glow graphic faded in while the button is hovered or selected.")]
     [SerializeField] private Graphic innerGlow;
-    
+
+    [Space]
     [Header("Particle Effect (optional)")]
     [Tooltip("Particle system that plays while hovered. Should have a UIParticle component.")]
     [SerializeField] private ParticleSystem emberParticles;
-    
+
+    [Space]
     [Header("Colors")]
+    [Tooltip("Frame color when the button is idle.")]
     [SerializeField] private Color idleColor      = new Color(0.79f, 0.66f, 0.46f, 0.5f);
+
+    [Tooltip("Frame color when the button is hovered or selected.")]
     [SerializeField] private Color hoverColor     = new Color(1.0f,  0.55f, 0.25f, 1.0f);
+
+    [Tooltip("Label color when the button is idle.")]
     [SerializeField] private Color labelIdle      = new Color(0.91f, 0.85f, 0.74f, 1.0f);
+
+    [Tooltip("Label color when the button is hovered or selected.")]
     [SerializeField] private Color labelHover     = new Color(1.0f,  1.0f,  1.0f,  1.0f);
-    
+
+    [Space]
     [Header("Animation")]
+    [Tooltip("Duration in seconds for hover fade and scale transitions.")]
+    [Range(0f, 1f)]
     [SerializeField] private float fadeInDuration = 0.3f;
+
+    [Tooltip("Duration in seconds for one ember travel pass across the glow line.")]
+    [Range(0.1f, 5f)]
     [SerializeField] private float emberTravelDuration = 1.5f;
+
+    [Tooltip("Multiplier applied to the icon scale while hovered or selected.")]
+    [Range(1f, 1.5f)]
     [SerializeField] private float iconScaleHover = 1.1f;
-    
+
+    [Space]
     [Header("Audio (optional)")]
+    [Tooltip("Audio clip played once when hover or selection starts.")]
     [SerializeField] private AudioClip hoverSound;
-    [SerializeField, Range(0, 1)] private float hoverVolume = 0.4f;
+
+    [Tooltip("Volume multiplier for the hover sound.")]
+    [Range(0f, 1f)]
+    [SerializeField] private float hoverVolume = 0.4f;
     
     private Vector3 iconStartScale;
     private float glowLineWidth;
@@ -47,7 +81,7 @@ public class MenuButtonGameHover : MonoBehaviour,
     private Graphic glowLineGraphic;
     private Graphic emberGraphic;
     
-    void Awake()
+    private void Awake()
     {
         if (iconImage != null)
             iconStartScale = iconImage.transform.localScale;
@@ -89,7 +123,6 @@ public class MenuButtonGameHover : MonoBehaviour,
             innerGlow.color = c;
         }
         
-        // Make sure particles are off by default
         if (emberParticles != null)
         {
             emberParticles.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
@@ -137,7 +170,6 @@ public class MenuButtonGameHover : MonoBehaviour,
             StartEmberLoop();
         }
         
-        // Start particle effect
         if (emberParticles != null)
         {
             emberParticles.Play(true);
@@ -174,7 +206,6 @@ public class MenuButtonGameHover : MonoBehaviour,
         if (emberGraphic != null)
             emberGraphic.DOFade(0f, fadeInDuration).SetId(transform);
         
-        // Stop emitting new particles, but let existing ones finish their lifetime
         if (emberParticles != null)
         {
             emberParticles.Stop(true, ParticleSystemStopBehavior.StopEmitting);
@@ -208,7 +239,7 @@ public class MenuButtonGameHover : MonoBehaviour,
         }
     }
     
-    void OnDisable()
+    private void OnDisable()
     {
         DOTween.Kill(transform);
         StopEmberLoop();

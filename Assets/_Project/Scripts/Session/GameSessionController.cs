@@ -5,11 +5,19 @@ using UnityEngine.SceneManagement;
 public class GameSessionController : MonoBehaviour
 {
     [Header("References")]
+    [Tooltip("Player health component that raises the defeat event when the player dies.")]
     [SerializeField] private PlayerHealth playerHealth;
+
+    [Tooltip("Survival timer that controls the wave survival phase duration in seconds.")]
     [SerializeField] private SurvivalTimer survivalTimer;
 
+    [Space]
     [Header("Startup")]
+    [Tooltip("When enabled, the session starts on the main menu instead of immediately entering gameplay.")]
     [SerializeField] private bool startAtMainMenu = true;
+
+    private bool hasStartedSurvivalTimer;
+    private GameSessionState stateBeforeUpgradeSelection = GameSessionState.Playing;
 
     public GameSessionState CurrentState { get; private set; }
 
@@ -42,9 +50,9 @@ public class GameSessionController : MonoBehaviour
             survivalTimer.TimerExpired += HandleTimerExpired;
         }
 
-        if (CurrentState == GameSessionState.Playing)
+        if (!startAtMainMenu)
         {
-            StartGameplay();
+            EnterPlaying();
         }
     }
 
@@ -63,7 +71,7 @@ public class GameSessionController : MonoBehaviour
 
     public void StartGame()
     {
-        StartGameplay();
+        EnterPlaying();
     }
 
     public void RestartGame()
@@ -77,27 +85,88 @@ public class GameSessionController : MonoBehaviour
         Application.Quit();
     }
 
-    private void StartGameplay()
+    public void EnterCountdown()
     {
-        Time.timeScale = 1f;
-
-        SetState(GameSessionState.Playing);
+        Time.timeScale = 0f;
 
         if (survivalTimer != null)
         {
-            survivalTimer.BeginTimer();
+            survivalTimer.StopTimer();
         }
+
+        SetState(GameSessionState.Countdown);
     }
 
-    private void HandlePlayerDied()
+    public void EnterPlaying()
     {
-        if (CurrentState != GameSessionState.Playing)
+        Time.timeScale = 1f;
+        SetState(GameSessionState.Playing);
+        StartSurvivalTimerIfNeeded();
+    }
+
+    public void EnterBossPhase()
+    {
+        Time.timeScale = 1f;
+
+        if (survivalTimer != null)
+        {
+            survivalTimer.StopTimer();
+        }
+
+        SetState(GameSessionState.BossPhase);
+        Debug.Log("BossPhase entered", this);
+    }
+
+    public void EnterUpgradeSelection()
+    {
+        if (CurrentState != GameSessionState.Playing && CurrentState != GameSessionState.BossPhase)
         {
             return;
         }
 
         Time.timeScale = 0f;
+        stateBeforeUpgradeSelection = CurrentState;
+        SetState(GameSessionState.UpgradeSelection);
+    }
+
+    public void ExitUpgradeSelection()
+    {
+        Time.timeScale = 1f;
+        SetState(stateBeforeUpgradeSelection);
+    }
+
+    public void TriggerVictory()
+    {
+        Time.timeScale = 0f;
+
+        if (survivalTimer != null)
+        {
+            survivalTimer.StopTimer();
+        }
+
+        SetState(GameSessionState.Victory);
+    }
+
+    public void TriggerDefeat()
+    {
+        Time.timeScale = 0f;
+
+        if (survivalTimer != null)
+        {
+            survivalTimer.StopTimer();
+        }
+
         SetState(GameSessionState.Defeat);
+    }
+
+    private void HandlePlayerDied()
+    {
+        if (CurrentState != GameSessionState.Playing && CurrentState != GameSessionState.BossPhase)
+        {
+            return;
+        }
+
+        TriggerDefeat();
     }
 
     private void HandleTimerExpired()
@@ -107,8 +176,18 @@ public class GameSessionController : MonoBehaviour
             return;
         }
 
-        Time.timeScale = 0f;
-        SetState(GameSessionState.Victory);
+        EnterBossPhase();
+    }
+
+    private void StartSurvivalTimerIfNeeded()
+    {
+        if (hasStartedSurvivalTimer || survivalTimer == null)
+        {
+            return;
+        }
+
+        hasStartedSurvivalTimer = true;
+        survivalTimer.BeginTimer();
     }
 
     private void SetState(GameSessionState newState)
