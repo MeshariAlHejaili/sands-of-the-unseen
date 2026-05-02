@@ -22,6 +22,7 @@ public class GameSessionController : MonoBehaviour
     public GameSessionState CurrentState { get; private set; }
 
     public event Action<GameSessionState> StateChanged;
+    public event Action<GameSessionState, GameSessionState> StateTransitioned;
 
     private void Awake()
     {
@@ -197,7 +198,9 @@ public class GameSessionController : MonoBehaviour
             return;
         }
 
+        GameSessionState previousState = CurrentState;
         CurrentState = newState;
+        StateTransitioned?.Invoke(previousState, CurrentState);
         StateChanged?.Invoke(CurrentState);
     }
 }

@@ -9,14 +9,14 @@ Read it fully before touching the repository. When in doubt, ask Meshari before 
 
 ```
 main        ← The stable, always-playable version. Never commit here directly.
-  └── develop  ← The shared working branch. All features merge here first.
+  └── Development  ← The shared working branch. All features merge here first.
         ├── feature/your-task-name   ← Your personal branch for each task.
         ├── feature/another-task
         └── art/character-textures
 ```
 
 **The only branch you will ever create or push to is your own feature branch.**
-You will never commit directly to `develop` or `main`.
+You will never commit directly to `Development` or `main`.
 
 ---
 
@@ -233,16 +233,16 @@ Every time you sit down to work, do this before anything else.
 
 ---
 
-### Step 1 — Switch to the develop branch
+### Step 1 — Switch to the Development branch
 
 ```bash
-git checkout develop
+git checkout Development
 ```
 
 ### Step 2 — Pull the latest changes from GitHub
 
 ```bash
-git pull origin develop
+git pull origin Development
 ```
 
 This downloads everything your teammates pushed since the last time you pulled. Always do this before starting new work.
@@ -270,15 +270,15 @@ git checkout feature/your-branch-name
 
 # PART 5 — CREATING A FEATURE BRANCH
 
-Every task gets its own branch. Never work directly on `develop`.
+Every task gets its own branch. Never work directly on `Development`.
 
 ---
 
-### Step 1 — Make sure you are on develop and it is up to date
+### Step 1 — Make sure you are on Development and it is up to date
 
 ```bash
-git checkout develop
-git pull origin develop
+git checkout Development
+git pull origin Development
 ```
 
 ### Step 2 — Create your branch
@@ -415,7 +415,7 @@ git push
 
 # PART 8 — CREATING A PULL REQUEST (PR)
 
-A Pull Request is how your work gets reviewed and merged into `develop`. You do this on the GitHub website, not in the terminal.
+A Pull Request is how your work gets reviewed and merged into `Development`. You do this on the GitHub website, not in the terminal.
 
 ---
 
@@ -435,10 +435,10 @@ If the banner is gone, click the **"Pull requests"** tab, then click **"New pull
 
 ### Step 4 — Set the correct target
 
-Make sure the PR is set to merge into **`develop`**, not `main`.
+Make sure the PR is set to merge into **`Development`**, not `main`.
 
 ```
-base: develop  ←  compare: feature/your-branch-name
+base: Development  ←  compare: feature/your-branch-name
 ```
 
 ### Step 5 — Write a description
@@ -503,7 +503,7 @@ Click **"Review changes"** (top right of the Files Changed tab):
 
 ### Step 5 — Do not click Merge
 
-Only Meshari merges PRs into `develop`.
+Only Meshari merges PRs into `Development`.
 
 ---
 
@@ -511,7 +511,7 @@ Only Meshari merges PRs into `develop`.
 
 # PART 10 — KEEPING YOUR BRANCH UP TO DATE
 
-If your teammates merge their work into `develop` while you are still working on your branch, your branch will fall behind. Update it regularly to avoid a large conflict later.
+If your teammates merge their work into `Development` while you are still working on your branch, your branch will fall behind. Update it regularly to avoid a large conflict later.
 
 ---
 
@@ -523,18 +523,18 @@ git stash
 ```
 This temporarily saves your changes out of the way.
 
-### Step 2 — Pull the latest develop
+### Step 2 — Pull the latest Development
 
 ```bash
-git checkout develop
-git pull origin develop
+git checkout Development
+git pull origin Development
 git checkout feature/your-branch-name
 ```
 
-### Step 3 — Merge develop into your branch
+### Step 3 — Merge Development into your branch
 
 ```bash
-git merge develop
+git merge Development
 ```
 
 This brings your branch up to date with what everyone else has done.
@@ -547,7 +547,7 @@ If there are conflicts, see Part 11.
 git stash pop
 ```
 
-**Do this at least every 1–2 days** to keep your branch close to `develop`. The longer you wait, the larger the conflict when it eventually comes.
+**Do this at least every 1–2 days** to keep your branch close to `Development`. The longer you wait, the larger the conflict when it eventually comes.
 
 ---
 
@@ -585,7 +585,7 @@ Open the file in VS Code. Conflict markers look like this:
 int speed = 10;
 =======
 int speed = 15;
->>>>>>> develop (incoming version)
+ >>>>>>> Development (incoming version)
 ```
 
 You need to decide: keep your version, keep the incoming version, or combine them.
@@ -654,6 +654,45 @@ Scenes and prefabs are the highest risk for conflicts. Follow these rules withou
 
 ---
 
+### Phase 3 two-scene policy
+
+From Phase 3 onward, the project uses two scene roles:
+
+| Scene | Role | Commit owner |
+|---|---|---|
+| `Assets/_Project/Scenes/SampleScene.unity` | Test sandbox for local prefab and gameplay iteration | Anyone may edit locally; commit only with lead approval |
+| `Assets/_Project/Scenes/Arena.unity` | Production scene that ships and is first in build settings | P2 only |
+
+Rules:
+- Do not commit `SampleScene.unity` changes unless the lead explicitly asks.
+- Only P2 commits `Arena.unity`.
+- Need something added to `Arena.unity`? Hand P2 a prefab or open an issue.
+- If you accidentally stage a sandbox scene edit, unstage or restore it before committing.
+
+### Phase 3 locked foundation files
+
+After Issue #0 foundation lands, these files are lead-owned. If another track needs a change, open an issue tagged `needs-lead` instead of editing directly:
+
+```
+GameSessionState.cs
+GameSessionController.cs
+GameplayBehaviourGate.cs
+GameScreenRouter.cs
+EnemyBoxAgent.cs
+EnemyWaveSpawner.cs
+BulletDamageDealer.cs
+IDamageable.cs
+IEnemyBehaviour.cs
+EnemyStatsContext.cs
+PlayerHealth.cs
+PlayerShooting.cs
+PlayerStats.cs
+UpgradeManager.cs
+ProjectSettings/TagManager.asset
+ProjectSettings/DynamicsManager.asset
+ProjectSettings/EditorBuildSettings.asset
+```
+
 ### One person per scene at a time
 
 Before opening a scene to edit it, announce in the team chat:
@@ -683,30 +722,34 @@ A surprise scene edit from a teammate's branch can cause a conflict that is very
 Print this and keep it visible.
 
 ```
-1.  Never commit directly to develop or main. Always use a feature branch.
+1.  Never commit directly to Development or main. Always use a feature branch.
 
-2.  Pull from develop every morning before starting work.
+2.  Pull from Development every morning before starting work.
 
 3.  Commit small and often. Write real commit messages.
 
 4.  Claim your scene or prefab in team chat before opening it.
 
-5.  Never edit the same scene as someone else at the same time.
+5.  Respect the two-scene policy: `SampleScene.unity` is a local test sandbox, `Arena.unity` is P2-owned production.
 
-6.  Run the game and make sure it launches before opening a Pull Request.
+6.  Never edit the same scene as someone else at the same time.
 
-7.  Keep branches short. Merge within 2-3 days. Long branches = big conflicts.
+7.  Locked foundation files require a `needs-lead` issue before another track edits them.
 
-8.  Pull before you push. Always.
+8.  Run the game and make sure it launches before opening a Pull Request.
 
-9.  Never use: git push --force. Ever.
+9.  Keep branches short. Merge within 2-3 days. Long branches = big conflicts.
 
-10. If something breaks and you do not know how to fix it, say so immediately.
+10. Pull before you push. Always.
+
+11. Never use: git push --force. Ever.
+
+12. If something breaks and you do not know how to fix it, say so immediately.
     Do not spend hours hiding it. Ask Meshari.
 
-11. Run git lfs pull after every pull.
+13. Run git lfs pull after every pull.
 
-12. Do not open the project with a Unity version other than 6000.3.10f1.
+14. Do not open the project with a Unity version other than 6000.3.10f1.
 ```
 
 ---
@@ -717,8 +760,8 @@ Print this and keep it visible.
 
 ```bash
 # ── DAILY START ──────────────────────────────────────────────────────────
-git checkout develop               # Switch to develop
-git pull origin develop            # Download latest changes
+git checkout Development           # Switch to Development
+git pull origin Development        # Download latest changes
 git lfs pull                       # Download latest large files
 
 # ── START A TASK ─────────────────────────────────────────────────────────
@@ -734,11 +777,11 @@ git commit -m "Short description"  # Save a commit with a message
 git push -u origin feature/name    # First push of a new branch
 git push                           # All later pushes on the same branch
 
-# ── UPDATE YOUR BRANCH FROM DEVELOP ──────────────────────────────────────
-git checkout develop               # Switch to develop
-git pull origin develop            # Download latest
+# ── UPDATE YOUR BRANCH FROM DEVELOPMENT ──────────────────────────────────
+git checkout Development           # Switch to Development
+git pull origin Development        # Download latest
 git checkout feature/your-branch   # Switch back to your branch
-git merge develop                  # Merge latest develop into your branch
+git merge Development              # Merge latest Development into your branch
 
 # ── RESOLVE CONFLICTS ─────────────────────────────────────────────────────
 git status                         # See which files have conflicts
@@ -751,7 +794,7 @@ git lfs pull                       # Download real binary files after a pull
 git lfs ls-files                   # See which files are tracked by LFS
 
 # ── SWITCH BRANCHES ───────────────────────────────────────────────────────
-git checkout develop               # Switch to develop
+git checkout Development           # Switch to Development
 git checkout feature/branch-name   # Switch to a feature branch
 git branch                         # List all branches and see which you are on
 
