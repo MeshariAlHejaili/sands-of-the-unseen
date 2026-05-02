@@ -20,14 +20,17 @@ public class PlayerHealth : MonoBehaviour
     [SerializeField] private bool hidePlayerOnDeath = true;
 
     private float currentHealth;
+    private bool isShieldActive;
     private Collider[] cachedColliders;
     private Renderer[] cachedRenderers;
 
     public float CurrentHealth => currentHealth;
     public float MaxHealth => maxHealth;
+    public bool IsShieldActive => isShieldActive;
     public bool IsDead { get; private set; }
 
     public event Action<float, float> HealthChanged;
+    public event Action<float, float, float> Damaged;
     public event Action Died;
 
     private void Awake()
@@ -49,13 +52,42 @@ public class PlayerHealth : MonoBehaviour
             return;
         }
 
+        if (isShieldActive)
+        {
+            isShieldActive = false;
+            return;
+        }
+
         currentHealth = Mathf.Max(0f, currentHealth - amount);
         HealthChanged?.Invoke(currentHealth, maxHealth);
+        Damaged?.Invoke(amount, currentHealth, maxHealth);
 
         if (currentHealth <= 0f)
         {
             Die();
         }
+    }
+
+    public void IncreaseMaxHealth(float amount)
+    {
+        if (amount <= 0f)
+        {
+            return;
+        }
+
+        maxHealth += amount;
+        currentHealth = Mathf.Min(maxHealth, currentHealth + amount);
+        HealthChanged?.Invoke(currentHealth, maxHealth);
+    }
+
+    public void ActivateShield()
+    {
+        if (IsDead)
+        {
+            return;
+        }
+
+        isShieldActive = true;
     }
 
     private void Die()

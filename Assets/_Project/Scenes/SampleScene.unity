@@ -22511,7 +22511,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fc9a747ab6d904b40800c2e67fe635d8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SurvivalTimer
-  survivalDurationSeconds: 300
+  survivalDurationSeconds: 60
 --- !u!114 &991821049
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -22737,6 +22737,9 @@ MonoBehaviour:
   sessionController: {fileID: 991821049}
   mainMenuScreen: {fileID: 515771126}
   hudScreen: {fileID: 1691673214}
+  countdownScreen: {fileID: 0}
+  upgradeSelectionScreen: {fileID: 0}
+  bossOverlayScreen: {fileID: 0}
   victoryScreen: {fileID: 731615429}
   defeatScreen: {fileID: 1516181939}
 --- !u!1 &1085920929
@@ -36035,6 +36038,7 @@ MonoBehaviour:
   playerWallet: {fileID: 484238543}
   upgradeLibrary: {fileID: 11400000, guid: 3f7af27df0aa93b45a4cf316cd564583, type: 2}
   upgradeMenuUI: {fileID: 1211012199}
+  session: {fileID: 991821049}
   baseThreshold: 2
   thresholdGrowth: 2
 --- !u!4 &1986812456

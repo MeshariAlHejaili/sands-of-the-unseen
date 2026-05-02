@@ -14,6 +14,9 @@ public class UpgradeManager : MonoBehaviour
     [Tooltip("Upgrade menu UI used to display random upgrade choices.")]
     [SerializeField] private UpgradeMenuUI upgradeMenuUI;
 
+    [Tooltip("Session controller used to enter and exit the upgrade pause state.")]
+    [SerializeField] private GameSessionController session;
+
     [Space]
     [Header("Threshold Scaling")]
     [Tooltip("Currency required to trigger the first upgrade choice.")]
@@ -30,6 +33,14 @@ public class UpgradeManager : MonoBehaviour
     private bool isUpgradeActive;
 
     private int CurrentThreshold => baseThreshold + upgradeLevel * thresholdGrowth;
+
+    private void Awake()
+    {
+        if (session == null)
+        {
+            session = FindFirstObjectByType<GameSessionController>();
+        }
+    }
 
     private IEnumerator Start()
     {
@@ -60,7 +71,7 @@ public class UpgradeManager : MonoBehaviour
     private void TriggerUpgrade()
     {
         isUpgradeActive = true;
-        Time.timeScale = 0f;
+        session.EnterUpgradeSelection();
         var picks = PickRandomUpgrades(3);
         upgradeMenuUI.Show(picks);
     }
@@ -71,7 +82,7 @@ public class UpgradeManager : MonoBehaviour
         coinsCollectedSinceLastUpgrade = 0;
         upgradeLevel++;
         isUpgradeActive = false;
-        Time.timeScale = 1f;
+        session.ExitUpgradeSelection();
         upgradeMenuUI.Hide();
     }
 

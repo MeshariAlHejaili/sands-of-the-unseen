@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class EnemyAI : MonoBehaviour
+public class EnemyAI : MonoBehaviour, IEnemyBehaviour
 {
     private EnemyHealth enemyHealth;
     private Transform playerTransform;
@@ -16,14 +16,14 @@ public class EnemyAI : MonoBehaviour
         enemyHealth = GetComponent<EnemyHealth>();
     }
 
-    public void Init(Transform player, PlayerHealth ph, float speed, float damage, float range, float cooldown)
+    public void Init(EnemyStatsContext statsContext)
     {
-        playerTransform = player;
-        playerHealth = ph;
-        moveSpeed = speed;
-        contactDamage = damage;
-        contactRange = range;
-        contactCooldown = cooldown;
+        playerTransform = statsContext.Target;
+        playerHealth = statsContext.TargetHealth;
+        moveSpeed = statsContext.MoveSpeed;
+        contactDamage = statsContext.ContactDamage;
+        contactRange = statsContext.ContactRange;
+        contactCooldown = statsContext.ContactDamageCooldown;
         nextDamageTime = 0f;
     }
 
