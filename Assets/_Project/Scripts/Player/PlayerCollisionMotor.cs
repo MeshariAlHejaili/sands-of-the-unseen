@@ -8,8 +8,11 @@ using UnityEngine;
 public class PlayerCollisionMotor : MonoBehaviour
 {
     private const int MaxSweepHits = 64;
+    private const int MaxOverlapResults = 64;
+    private const int MaxOverlapRecoveryIterations = 3;
     private const float MinMoveDistance = 0.0001f;
     private const float MinCastExtent = 0.001f;
+    private const float MovingIntoSurfaceDot = -0.001f;
 
     [Header("Collision Sweep")]
     [Tooltip("Physics layers that stop player walking, sprinting, and dashing.")]
@@ -20,6 +23,7 @@ public class PlayerCollisionMotor : MonoBehaviour
     [SerializeField] private float collisionSkinWidth = 0.03f;
 
     private readonly RaycastHit[] sweepHits = new RaycastHit[MaxSweepHits];
+    private readonly Collider[] overlapResults = new Collider[MaxOverlapResults];
     private BoxCollider boxCollider;
     private Collider[] selfColliders;
 
@@ -57,10 +61,13 @@ public class PlayerCollisionMotor : MonoBehaviour
             return displacement;
         }
 
+        ResolveBlockingOverlaps();
+
         Vector3 moved = MoveSingle(displacement, out blockingHit);
 
         if (!allowSlide || blockingHit.collider == null)
         {
+            ResolveBlockingOverlaps();
             return moved;
         }
 
@@ -73,6 +80,7 @@ public class PlayerCollisionMotor : MonoBehaviour
         }
 
         moved += MoveSingle(slideDisplacement, out _);
+        ResolveBlockingOverlaps();
         return moved;
     }
 
@@ -126,7 +134,7 @@ public class PlayerCollisionMotor : MonoBehaviour
         for (int i = 0; i < hitCount; i++)
         {
             RaycastHit hit = sweepHits[i];
-            if (!IsValidBlockingHit(hit) || hit.distance >= nearestDistance)
+            if (!IsValidBlockingHit(hit, direction) || hit.distance >= nearestDistance)
             {
                 continue;
             }
@@ -138,14 +146,83 @@ public class PlayerCollisionMotor : MonoBehaviour
         return nearestHit.collider != null;
     }
 
-    private bool IsValidBlockingHit(RaycastHit hit)
+    private bool IsValidBlockingHit(RaycastHit hit, Vector3 direction)
     {
         if (hit.collider == null)
         {
             return false;
         }
 
-        return !IsSelfCollider(hit.collider);
+        if (IsSelfCollider(hit.collider))
+        {
+            return false;
+        }
+
+        if (hit.distance > collisionSkinWidth)
+        {
+            return true;
+        }
+
+        return IsMovingIntoSurface(hit.normal, direction);
+    }
+
+    private bool IsMovingIntoSurface(Vector3 normal, Vector3 direction)
+    {
+        if (normal.sqrMagnitude <= Mathf.Epsilon)
+        {
+            return true;
+        }
+
+        return Vector3.Dot(direction, normal.normalized) < MovingIntoSurfaceDot;
+    }
+
+    private void ResolveBlockingOverlaps()
+    {
+        for (int iteration = 0; iteration < MaxOverlapRecoveryIterations; iteration++)
+        {
+            int overlapCount = Physics.OverlapBoxNonAlloc(
+                GetColliderCenter(),
+                GetOverlapHalfExtents(),
+                overlapResults,
+                transform.rotation,
+                blockingLayers,
+                QueryTriggerInteraction.Ignore);
+
+            Vector3 correction = Vector3.zero;
+
+            for (int i = 0; i < overlapCount; i++)
+            {
+                Collider other = overlapResults[i];
+                if (other == null || IsSelfCollider(other))
+                {
+                    continue;
+                }
+
+                bool isOverlapping = Physics.ComputePenetration(
+                    boxCollider,
+                    transform.position,
+                    transform.rotation,
+                    other,
+                    other.transform.position,
+                    other.transform.rotation,
+                    out Vector3 separationDirection,
+                    out float separationDistance);
+
+                if (!isOverlapping || separationDistance <= MinMoveDistance)
+                {
+                    continue;
+                }
+
+                correction += separationDirection * separationDistance;
+            }
+
+            if (correction.sqrMagnitude <= MinMoveDistance * MinMoveDistance)
+            {
+                break;
+            }
+
+            transform.position += correction + correction.normalized * collisionSkinWidth;
+        }
     }
 
     private bool IsSelfCollider(Collider other)
@@ -180,6 +257,16 @@ public class PlayerCollisionMotor : MonoBehaviour
             Mathf.Max(MinCastExtent, halfExtents.x - skinWidth),
             Mathf.Max(MinCastExtent, halfExtents.y - skinWidth),
             Mathf.Max(MinCastExtent, halfExtents.z - skinWidth));
+    }
+
+    private Vector3 GetOverlapHalfExtents()
+    {
+        Vector3 halfExtents = Vector3.Scale(boxCollider.size * 0.5f, Abs(transform.lossyScale));
+
+        return new Vector3(
+            Mathf.Max(MinCastExtent, halfExtents.x),
+            Mathf.Max(MinCastExtent, halfExtents.y),
+            Mathf.Max(MinCastExtent, halfExtents.z));
     }
 
     private void EnsureCachedCollider()
