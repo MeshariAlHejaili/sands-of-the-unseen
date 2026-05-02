@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 1339971506959185355}
   - component: {fileID: 5301716918071481758}
   - component: {fileID: 6331482871309736253}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: CurrencyOrb
   m_TagString: Untagged
   m_Icon: {fileID: 0}
