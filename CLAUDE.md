@@ -87,6 +87,26 @@ Apply these to every script you create or modify. No exceptions.
 
 ---
 
+## Odin Inspector Usage
+
+This project has Odin Inspector installed in **Editor Only Mode**. Odin serialization is stripped from builds — only Inspector attributes and the Validator window are available at runtime/build.
+
+### Required Workflow
+- Run **Tools → Odin Inspector → Validator → Open Validator → Scan Project** before opening any PR. Fix or document every error before requesting review.
+
+### Permitted Attributes (opportunistic, not as a sweep refactor)
+- `[Required]` on `[SerializeField]` reference fields that must not be null at runtime.
+- `[SceneObjectsOnly]` / `[AssetsOnly]` to constrain what can be dragged into reference fields.
+- `[ShowInInspector, ReadOnly]` on a private property to expose runtime state for debugging without serializing it or breaking encapsulation.
+- `[Button("Label")]` on a private method for editor-only debug actions (e.g. "Spawn Test Boss").
+
+### Forbidden
+- Do not inherit from `SerializedMonoBehaviour` or `SerializedScriptableObject`. Editor Only Mode removes this serialization from builds.
+- Do not import packages from `Assets/Plugins/Sirenix/Demos/`. They rely on Odin serialization and will break the build.
+- Do not replace existing `[Header]` / `[Range]` / `[Tooltip]` / `[Min]` / `[Space]` with Odin equivalents like `[BoxGroup]`, `[FoldoutGroup]`, `[TabGroup]`. Keep existing Inspector hygiene unchanged for this phase.
+
+---
+
 ## What NOT to Do
 - Do not add features beyond what the task requires.
 - Do not add error handling for scenarios that cannot happen.
