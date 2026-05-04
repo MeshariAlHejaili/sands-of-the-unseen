@@ -12,7 +12,39 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1c059366b256cfb4eb700079e34aaaad, type: 3}
   m_Name: UpgradeLibrary
   m_EditorClassIdentifier: Assembly-CSharp::UpgradeLibrary
-  availableUpgrades:
-  - {fileID: 11400000, guid: 0bd58a970a79e734892124b637147e3c, type: 2}
-  - {fileID: 11400000, guid: 9d66263edd7e8af47bd173d35b05ae7f, type: 2}
-  - {fileID: 11400000, guid: bbd8623d2dd374e4494ae9d2ca86fa16, type: 2}
+  availableStats:
+  - statType: 0
+    commonValue: 6
+    rareValue: 12
+    legendaryValue: 22
+  - statType: 1
+    commonValue: 10
+    rareValue: 22
+    legendaryValue: 40
+  - statType: 2
+    commonValue: 8
+    rareValue: 16
+    legendaryValue: 30
+  - statType: 3
+    commonValue: 6
+    rareValue: 14
+    legendaryValue: 25
+  - statType: 4
+    commonValue: 8
+    rareValue: 18
+    legendaryValue: 35
+  - statType: 5
+    commonValue: 6
+    rareValue: 13
+    legendaryValue: 25
+  - statType: 6
+    commonValue: 15
+    rareValue: 35
+    legendaryValue: 70
+  - statType: 7
+    commonValue: 10
+    rareValue: 20
+    legendaryValue: 40
+  commonChance: 0.6
+  rareChance: 0.3
+  legendaryChance: 0.1

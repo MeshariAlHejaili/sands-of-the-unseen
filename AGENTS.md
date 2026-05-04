@@ -6,11 +6,13 @@ These rules apply to every Codex task in this repository. Follow them exactly un
 
 ## Game Context
 
-Top-down horde-survival roguelike built in Unity 6 with C#.
-Design document: `docs/phase1/proposal.md`
+Top-down horde-survival roguelike built in Unity 6 (C#).  
 One arena, one gun, wave-based enemies, coin-driven upgrade selection.
-Read the proposal before making architectural or gameplay decisions.
 
+**Document hierarchy — consult in this order:**
+1. `docs/phase3/sprint_plan.md` — primary reference. This is the current direction of the game. Always check here first.
+2. `docs/phase1/proposal.md` — fallback. Use this for anything not covered in the sprint plan.
+3. If neither document addresses the topic, ask a clarifying question before proceeding. Do not guess at design intent.
 ---
 
 ## Unity Inspector Rules

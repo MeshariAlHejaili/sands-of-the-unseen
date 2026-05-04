@@ -80,6 +80,17 @@ public class PlayerHealth : MonoBehaviour
         HealthChanged?.Invoke(currentHealth, maxHealth);
     }
 
+    public void Heal(float amount)
+    {
+        if (IsDead || amount <= 0f)
+        {
+            return;
+        }
+
+        currentHealth = Mathf.Min(maxHealth, currentHealth + amount);
+        HealthChanged?.Invoke(currentHealth, maxHealth);
+    }
+
     public void ActivateShield()
     {
         if (IsDead)
