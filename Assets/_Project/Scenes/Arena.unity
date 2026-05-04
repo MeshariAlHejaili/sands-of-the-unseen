@@ -1478,7 +1478,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cecdf66af1562d640a9d61842a0c7a07, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerAim
-  rotationSpeed: 20
+  rotationSpeed: 0
+  aimPlaneHeight: 0
 --- !u!114 &484238541
 MonoBehaviour:
   m_ObjectHideFlags: 0
