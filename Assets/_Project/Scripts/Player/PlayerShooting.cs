@@ -2,13 +2,17 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent(typeof(PlayerStats))]
+[RequireComponent(typeof(PlayerInputReader))]
+[RequireComponent(typeof(PlayerAim))]
+[DefaultExecutionOrder(100)]
 public class PlayerShooting : MonoBehaviour
 {
     [Header("Bullet Settings")]
     [Tooltip("Bullet prefab spawned by the player's weapon and stored in the bullet pool.")]
     [SerializeField] private GameObject bulletPrefab;
 
-    [Tooltip("Transform used as the bullet spawn position and forward firing direction.")]
+    [Tooltip("Fallback transform used as the shot spawn position when no PlayerWeaponMount is present.")]
     [SerializeField] private Transform firePoint;
 
     [Space]
@@ -27,6 +31,9 @@ public class PlayerShooting : MonoBehaviour
     private int totalBulletsCreated;
 
     private PlayerStats stats;
+    private PlayerInputReader inputReader;
+    private PlayerAim playerAim;
+    private PlayerWeaponMount weaponMount;
     private AudioSource audioSource;
     private readonly Queue<Bullet> bulletPool = new Queue<Bullet>();
 
@@ -35,6 +42,9 @@ public class PlayerShooting : MonoBehaviour
     private void Start()
     {
         stats = GetComponent<PlayerStats>();
+        inputReader = PlayerInputReader.GetOrAdd(gameObject);
+        playerAim = GetComponent<PlayerAim>();
+        weaponMount = GetComponent<PlayerWeaponMount>();
         audioSource = GetComponent<AudioSource>();
 
         if (audioSource == null)
@@ -59,22 +69,26 @@ public class PlayerShooting : MonoBehaviour
             lastKnownBulletsPerShot = stats.BulletsPerShot;
             EnsurePoolCapacity();
         }
+    }
 
+    private void LateUpdate()
+    {
         Shoot();
     }
 
     private void Shoot()
     {
-        if (!Input.GetMouseButton(0) || Time.time < nextFireTime) return;
+        if (!inputReader.IsAttackHeld || Time.time < nextFireTime) return;
+        if (!TryGetShotPose(out Vector3 shotPosition, out Quaternion shotRotation)) return;
 
         int bulletsToFire = Mathf.Max(1, stats.BulletsPerShot);
 
         for (int i = 0; i < bulletsToFire; i++)
         {
-            SpawnBullet(GetShotRotation(i, bulletsToFire));
+            SpawnBullet(shotPosition, GetShotRotation(i, bulletsToFire, shotRotation));
         }
 
-        ShotFired?.Invoke(firePoint.position, firePoint.rotation);
+        ShotFired?.Invoke(shotPosition, shotRotation);
 
         if (shootSound != null)
             audioSource.PlayOneShot(shootSound, volume);
@@ -82,24 +96,56 @@ public class PlayerShooting : MonoBehaviour
         nextFireTime = Time.time + 1f / stats.FireRate;
     }
 
-    private void SpawnBullet(Quaternion rotation)
+    private bool TryGetShotPose(out Vector3 position, out Quaternion rotation)
+    {
+        if (weaponMount != null && weaponMount.GetShotPose(out position, out rotation))
+        {
+            return true;
+        }
+
+        position = firePoint != null ? firePoint.position : transform.position;
+
+        if (playerAim != null)
+        {
+            if (!playerAim.TryGetAimRotationFrom(position, out rotation))
+            {
+                rotation = playerAim.AimRotation;
+            }
+
+            return true;
+        }
+
+        Vector3 forward = firePoint != null ? firePoint.forward : transform.forward;
+        forward.y = 0f;
+
+        if (forward.sqrMagnitude <= Mathf.Epsilon)
+        {
+            rotation = Quaternion.identity;
+            return false;
+        }
+
+        rotation = Quaternion.LookRotation(forward.normalized, Vector3.up);
+        return true;
+    }
+
+    private void SpawnBullet(Vector3 position, Quaternion rotation)
     {
         Bullet bullet = GetBulletFromPool();
-        bullet.transform.SetPositionAndRotation(firePoint.position, rotation);
+        bullet.transform.SetPositionAndRotation(position, rotation);
         bullet.Init(stats.BulletDamage, ReturnBulletToPool);
         bullet.gameObject.SetActive(true);
     }
 
-    private Quaternion GetShotRotation(int bulletIndex, int bulletsToFire)
+    private Quaternion GetShotRotation(int bulletIndex, int bulletsToFire, Quaternion baseRotation)
     {
         if (bulletsToFire <= 1 || stats.BulletSpreadAngle <= 0f)
         {
-            return firePoint.rotation;
+            return baseRotation;
         }
 
         float spreadStep = stats.BulletSpreadAngle / (bulletsToFire - 1);
         float yawOffset = -stats.BulletSpreadAngle * 0.5f + spreadStep * bulletIndex;
-        return Quaternion.AngleAxis(yawOffset, Vector3.up) * firePoint.rotation;
+        return Quaternion.AngleAxis(yawOffset, Vector3.up) * baseRotation;
     }
 
     private void EnsurePoolCapacity()
@@ -127,7 +173,7 @@ public class PlayerShooting : MonoBehaviour
 
     private void CreatePooledBullet()
     {
-        GameObject obj = Instantiate(bulletPrefab, transform.position, Quaternion.identity, transform);
+        GameObject obj = Instantiate(bulletPrefab, transform.position, Quaternion.identity);
         Bullet bullet = obj.GetComponent<Bullet>();
         obj.SetActive(false);
         bulletPool.Enqueue(bullet);

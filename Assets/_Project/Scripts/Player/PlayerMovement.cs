@@ -7,6 +7,7 @@ using UnityEngine;
 /// </summary>
 [RequireComponent(typeof(PlayerStats))]
 [RequireComponent(typeof(PlayerCollisionMotor))]
+[RequireComponent(typeof(PlayerInputReader))]
 public class PlayerMovement : MonoBehaviour
 {
     /// <summary>
@@ -34,6 +35,7 @@ public class PlayerMovement : MonoBehaviour
 
     private PlayerStats stats;
     private PlayerCollisionMotor collisionMotor;
+    private PlayerInputReader inputReader;
     private AudioSource audioSource;
     private Coroutine dashCoroutine;
     private bool isDashing;
@@ -42,6 +44,7 @@ public class PlayerMovement : MonoBehaviour
     {
         stats = GetComponent<PlayerStats>();
         collisionMotor = GetComponent<PlayerCollisionMotor>();
+        inputReader = PlayerInputReader.GetOrAdd(gameObject);
         audioSource = GetComponent<AudioSource>();
 
         if (collisionMotor == null)
@@ -77,7 +80,7 @@ public class PlayerMovement : MonoBehaviour
 
         HandleMovement();
 
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (inputReader.WasDashPressedThisFrame)
         {
             AttemptDash();
         }
@@ -85,10 +88,8 @@ public class PlayerMovement : MonoBehaviour
 
     private void HandleMovement()
     {
-        float horizontal = Input.GetAxisRaw("Horizontal");
-        float vertical = Input.GetAxisRaw("Vertical");
-
-        Vector3 moveDirection = new Vector3(horizontal, 0f, vertical);
+        Vector2 moveInput = inputReader.MoveInput;
+        Vector3 moveDirection = new Vector3(moveInput.x, 0f, moveInput.y);
         MoveInputChanged?.Invoke(moveDirection);
 
         if (moveDirection.sqrMagnitude <= 0.01f)
@@ -107,9 +108,8 @@ public class PlayerMovement : MonoBehaviour
     {
         if (stats.UseStamina(stats.DashStaminaCost))
         {
-            float h = Input.GetAxisRaw("Horizontal");
-            float v = Input.GetAxisRaw("Vertical");
-            Vector3 dashDirection = new Vector3(h, 0, v).normalized;
+            Vector2 moveInput = inputReader.MoveInput;
+            Vector3 dashDirection = new Vector3(moveInput.x, 0f, moveInput.y).normalized;
 
             // If standing still, dash in the direction the player is facing
             if (dashDirection.sqrMagnitude < 0.01f)
@@ -183,7 +183,7 @@ public class PlayerMovement : MonoBehaviour
 
     private bool TryUseSprintStamina()
     {
-        if (!Input.GetKey(KeyCode.LeftShift) && !Input.GetKey(KeyCode.RightShift))
+        if (!inputReader.IsSprintHeld)
         {
             return false;
         }
