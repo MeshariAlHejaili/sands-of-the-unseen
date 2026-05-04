@@ -125,9 +125,34 @@ public class PlayerStats : MonoBehaviour
         moveSpeed = Mathf.Max(0f, moveSpeed + amount);
     }
 
+    public void IncreaseMoveSpeedByPercent(float percentIncrease)
+    {
+        float multiplier = 1f + Mathf.Max(0f, percentIncrease);
+        moveSpeed = Mathf.Max(0f, moveSpeed * multiplier);
+        sprintSpeed = Mathf.Max(0f, sprintSpeed * multiplier);
+    }
+
     public void AddSprintSpeed(float amount)
     {
         sprintSpeed = Mathf.Max(0f, sprintSpeed + amount);
+    }
+
+    public void IncreaseStaminaRegenByPercent(float percentIncrease)
+    {
+        float multiplier = 1f + Mathf.Max(0f, percentIncrease);
+        staminaRegenPerSecond = Mathf.Max(0f, staminaRegenPerSecond * multiplier);
+    }
+
+    public void IncreaseDashDistanceByPercent(float percentIncrease)
+    {
+        float multiplier = 1f + Mathf.Max(0f, percentIncrease);
+        dashDistance = Mathf.Max(0f, dashDistance * multiplier);
+    }
+
+    public void ReduceDashStaminaCostByPercent(float percentReduction)
+    {
+        float multiplier = Mathf.Max(0f, 1f - Mathf.Max(0f, percentReduction));
+        dashStaminaCost = Mathf.Max(0f, dashStaminaCost * multiplier);
     }
 
     public void AddBulletDamage(float amount)
@@ -135,9 +160,21 @@ public class PlayerStats : MonoBehaviour
         bulletDamage = Mathf.Max(0f, bulletDamage + amount);
     }
 
+    public void IncreaseBulletDamageByPercent(float percentIncrease)
+    {
+        float multiplier = 1f + Mathf.Max(0f, percentIncrease);
+        bulletDamage = Mathf.Max(0f, bulletDamage * multiplier);
+    }
+
     public void AddFireRate(float amount)
     {
         fireRate = Mathf.Max(0.01f, fireRate + amount);
+    }
+
+    public void IncreaseFireRateByPercent(float percentIncrease)
+    {
+        float multiplier = 1f + Mathf.Max(0f, percentIncrease);
+        fireRate = Mathf.Max(0.01f, fireRate * multiplier);
     }
 
     public void AddBulletsPerShot(int amount)

@@ -34,4 +34,21 @@ public class PlayerCurrencyWallet : MonoBehaviour
         currentCurrency += amount;
         CurrencyChanged?.Invoke(currentCurrency);
     }
+
+    public bool TrySpendCurrency(int amount)
+    {
+        if (amount <= 0)
+        {
+            return true;
+        }
+
+        if (currentCurrency < amount)
+        {
+            return false;
+        }
+
+        currentCurrency -= amount;
+        CurrencyChanged?.Invoke(currentCurrency);
+        return true;
+    }
 }
