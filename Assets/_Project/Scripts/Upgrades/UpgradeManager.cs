@@ -1,38 +1,32 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class UpgradeManager : MonoBehaviour
 {
     [Header("References")]
-    [Tooltip("Player wallet used to track collected currency toward the next upgrade.")]
+    [Tooltip("Player wallet used to track and spend currency for upgrade choices.")]
     [SerializeField] private PlayerCurrencyWallet playerWallet;
 
-    [Tooltip("Upgrade library containing the pool of upgrades that can be offered.")]
+    [Tooltip("Upgrade library that generates the stat and rarity combinations shown to the player.")]
     [SerializeField] private UpgradeLibrary upgradeLibrary;
 
-    [Tooltip("Upgrade menu UI used to display random upgrade choices.")]
+    [Tooltip("Upgrade menu UI used to display the generated upgrade choices.")]
     [SerializeField] private UpgradeMenuUI upgradeMenuUI;
 
     [Tooltip("Session controller used to enter and exit the upgrade pause state.")]
     [SerializeField] private GameSessionController session;
 
     [Space]
-    [Header("Threshold Scaling")]
-    [Tooltip("Currency required to trigger the first upgrade choice.")]
+    [Header("Currency Requirements")]
+    [Tooltip("Currency required to trigger the first upgrade choice in a new run.")]
     [Min(1)]
-    [SerializeField] private int baseThreshold = 2;
+    [SerializeField] private int startingCurrencyRequirement = 10;
 
-    [Tooltip("Additional currency required for each later upgrade level.")]
-    [Min(0)]
-    [SerializeField] private int thresholdGrowth = 2;
+    [Tooltip("Additional currency required after each selected upgrade.")]
+    [Min(1)]
+    [SerializeField] private int currencyRequirementIncrease = 5;
 
-    private int upgradeLevel;
-    private int coinsCollectedSinceLastUpgrade;
-    private int lastKnownCurrency;
+    private int currentCurrencyRequirement;
     private bool isUpgradeActive;
-
-    private int CurrentThreshold => baseThreshold + upgradeLevel * thresholdGrowth;
 
     private void Awake()
     {
@@ -40,65 +34,117 @@ public class UpgradeManager : MonoBehaviour
         {
             session = FindFirstObjectByType<GameSessionController>();
         }
+
+        currentCurrencyRequirement = startingCurrencyRequirement;
     }
 
-    private IEnumerator Start()
+    private void Start()
     {
-        // Skip the wallet's init broadcast that fires in its own Start()
-        yield return null;
-        lastKnownCurrency = playerWallet.CurrentCurrency;
-        playerWallet.CurrencyChanged += OnCurrencyChanged;
+        if (playerWallet != null)
+        {
+            playerWallet.CurrencyChanged += OnCurrencyChanged;
+        }
+
+        if (session != null)
+        {
+            session.StateChanged += OnSessionStateChanged;
+        }
+
+        TryTriggerUpgrade();
     }
 
     private void OnDestroy()
     {
         if (playerWallet != null)
+        {
             playerWallet.CurrencyChanged -= OnCurrencyChanged;
+        }
+
+        if (session != null)
+        {
+            session.StateChanged -= OnSessionStateChanged;
+        }
     }
 
-    private void OnCurrencyChanged(int totalCurrency)
+    private void OnCurrencyChanged(int currentCurrency)
     {
-        if (isUpgradeActive) return;
+        if (isUpgradeActive)
+        {
+            return;
+        }
 
-        int coinsJustAdded = totalCurrency - lastKnownCurrency;
-        lastKnownCurrency = totalCurrency;
-        coinsCollectedSinceLastUpgrade += coinsJustAdded;
+        TryTriggerUpgrade();
+    }
 
-        if (coinsCollectedSinceLastUpgrade >= CurrentThreshold)
-            TriggerUpgrade();
+    private void OnSessionStateChanged(GameSessionState state)
+    {
+        if (state == GameSessionState.Playing || state == GameSessionState.BossPhase)
+        {
+            TryTriggerUpgrade();
+        }
+    }
+
+    public void ApplyUpgrade(UpgradeOffer chosen)
+    {
+        if (chosen == null || playerWallet == null)
+        {
+            return;
+        }
+
+        if (!playerWallet.TrySpendCurrency(currentCurrencyRequirement))
+        {
+            return;
+        }
+
+        chosen.Apply(playerWallet.gameObject);
+        currentCurrencyRequirement += currencyRequirementIncrease;
+        isUpgradeActive = false;
+
+        if (upgradeMenuUI != null)
+        {
+            upgradeMenuUI.Hide();
+        }
+
+        if (session != null)
+        {
+            session.ExitUpgradeSelection();
+        }
+
+        TryTriggerUpgrade();
+    }
+
+    private void TryTriggerUpgrade()
+    {
+        if (!CanTriggerUpgrade())
+        {
+            return;
+        }
+
+        TriggerUpgrade();
+    }
+
+    private bool CanTriggerUpgrade()
+    {
+        if (isUpgradeActive || playerWallet == null || upgradeLibrary == null || upgradeMenuUI == null || session == null)
+        {
+            return false;
+        }
+
+        bool canPauseForUpgrade = session.CurrentState == GameSessionState.Playing || session.CurrentState == GameSessionState.BossPhase;
+        return canPauseForUpgrade && playerWallet.CurrentCurrency >= currentCurrencyRequirement;
     }
 
     private void TriggerUpgrade()
     {
-        isUpgradeActive = true;
-        session.EnterUpgradeSelection();
-        var picks = PickRandomUpgrades(3);
-        upgradeMenuUI.Show(picks);
-    }
+        var picks = upgradeLibrary.CreateRandomOffers(3);
 
-    public void ApplyUpgrade(UpgradeDefinition chosen)
-    {
-        chosen.Apply(playerWallet.gameObject);
-        coinsCollectedSinceLastUpgrade = 0;
-        upgradeLevel++;
-        isUpgradeActive = false;
-        session.ExitUpgradeSelection();
-        upgradeMenuUI.Hide();
-    }
-
-    private List<UpgradeDefinition> PickRandomUpgrades(int count)
-    {
-        var pool = new List<UpgradeDefinition>(upgradeLibrary.AvailableUpgrades);
-        var result = new List<UpgradeDefinition>();
-        count = Mathf.Min(count, pool.Count);
-
-        for (int i = 0; i < count; i++)
+        if (picks.Count == 0)
         {
-            int index = UnityEngine.Random.Range(0, pool.Count);
-            result.Add(pool[index]);
-            pool.RemoveAt(index);
+            return;
         }
 
-        return result;
+        isUpgradeActive = true;
+        session.EnterUpgradeSelection();
+        upgradeMenuUI.Show(picks);
     }
 }
