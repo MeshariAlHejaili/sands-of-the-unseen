@@ -3,6 +3,7 @@ using UnityEngine;
 public class EnemyAI : MonoBehaviour, IEnemyBehaviour
 {
     private EnemyHealth enemyHealth;
+    private EnemyObstacleMotor obstacleMotor;
     private Transform playerTransform;
     private PlayerHealth playerHealth;
     private float moveSpeed;
@@ -14,6 +15,11 @@ public class EnemyAI : MonoBehaviour, IEnemyBehaviour
     private void Awake()
     {
         enemyHealth = GetComponent<EnemyHealth>();
+        obstacleMotor = GetComponent<EnemyObstacleMotor>();
+        if (obstacleMotor == null)
+        {
+            obstacleMotor = gameObject.AddComponent<EnemyObstacleMotor>();
+        }
     }
 
     public void Init(EnemyStatsContext statsContext)
@@ -51,7 +57,8 @@ public class EnemyAI : MonoBehaviour, IEnemyBehaviour
         if (toPlayer.sqrMagnitude <= contactRange * contactRange) return;
 
         Vector3 direction = toPlayer.normalized;
-        transform.position += direction * moveSpeed * Time.deltaTime;
+        Vector3 displacement = direction * moveSpeed * Time.deltaTime;
+        obstacleMotor.Move(displacement, true);
         transform.rotation = Quaternion.LookRotation(direction, Vector3.up);
     }
 
